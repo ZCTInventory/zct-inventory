@@ -1,0 +1,13 @@
+{
+  "name": "ZCT Merch Inventory",
+  "short_name": "ZCT Merch",
+  "description": "Zululand Conservation Trust merchandise inventory and events",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#F6F7F2",
+  "theme_color": "#A6CE39",
+  "icons": [
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
