@@ -326,7 +326,20 @@ body.sim header{border-bottom:3px solid #5b3d8f}
 .pl-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700}
 .pl-tag .tag-dot{width:13px;height:13px;border-width:1.5px;box-shadow:none;border-color:#ccc}
 .pl-foot{margin-top:30px;font-size:11px;color:#777;border-top:1px solid #ddd;padding-top:10px}
+.plc-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid #111;padding-bottom:6px;margin-bottom:8px}
+.plc-head .t{font-family:var(--font-display);font-size:17px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.plc-head .s{font-size:10.5px;color:#555}
+.plc{column-count:2;column-gap:26px;font-size:10.5px;line-height:1.3}
+.plc h5{font-family:var(--font-display);font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:#F0F2EA;border-left:3px solid var(--lime);padding:3px 7px;margin:8px 0 3px;break-after:avoid}
+.plc h5:first-child{margin-top:0}
+.plc .li{display:flex;align-items:center;gap:6px;padding:2px 0;border-bottom:1px dotted #ddd;break-inside:avoid}
+.plc .cb{width:10px;height:10px;border:1.5px solid #111;border-radius:2px;flex-shrink:0}
+.plc .q{font-weight:700;min-width:26px;text-align:right;font-size:11px}
+.plc .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plc .sk{font-family:var(--font-mono);font-size:8.5px;color:#666;flex-shrink:0}
+@media(max-width:640px){.plc{column-count:1}}
 @media print{
+  .plc{column-count:2}
   body.printing>*:not(#printRoot){display:none!important}
   #printRoot.show{position:static;overflow:visible}
   .pl-actions{display:none!important}
@@ -1010,7 +1023,9 @@ function openEvent(id){
       <td class="num">${R(p.price)}</td>
       ${e.status==='closed'
         ? `<td class="num">${res?res.returned:'—'}</td><td class="num sold-chip">${res?res.sold:'—'}</td>`
-        : `<td class="num"><button class="btn btn-ghost btn-sm" onclick="returnCheckout('${e.id}','${c.productId}')">Return all</button></td>`}
+        : `<td class="num"><span style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end">
+            <input type="number" class="qty-in" id="ret_${c.productId}" value="${c.qty}" min="1" max="${c.qty}" title="How many to return">
+            <button class="btn btn-ghost btn-sm" onclick="returnCheckout('${e.id}','${c.productId}')">Return</button></span></td>`}
     </tr>`;
   }).join('');
 
@@ -1254,25 +1269,55 @@ async function confirmPicker(){
   if(failed.length) toast('Skipped: '+esc(failed.join(', ')), true);
 }
 
+function returnFromCheckout(p, co, n){
+  // put n units back into the locations they came from, decrementing the from-records
+  let remaining = n;
+  for(const f of co.from){
+    if(remaining<=0) break;
+    const back = Math.min(f.qty, remaining);
+    if(back>0 && p){
+      let loc = p.locations.find(l=>l.name===f.name);
+      if(!loc){ loc={name:f.name, qty:0}; p.locations.push(loc); }
+      loc.qty += back;
+    }
+    f.qty -= back; remaining -= back;
+  }
+  if(remaining>0 && p){
+    if(!p.locations.length) p.locations.push({name:'Unassigned', qty:0});
+    p.locations[0].qty += remaining;
+  }
+  co.from = co.from.filter(f=>f.qty>0);
+  co.qty -= n;
+}
+
 async function returnCheckout(evId, pid){
   const e = state.events.find(x=>x.id===evId); if(!e) return;
-  const i = e.checkouts.findIndex(c=>c.productId===pid); if(i<0) return;
+  const co = e.checkouts.find(c=>c.productId===pid); if(!co) return;
+  const inp = document.getElementById('ret_'+pid);
+  let n = inp ? parseInt(inp.value) : co.qty;
+  if(isNaN(n) || n<1) n = co.qty;
+  n = Math.min(n, co.qty);
   try{
     await cloudTx(async tx=>{
       const eref = fb.doc(db,'events',evId), pref = fb.doc(db,'products',pid);
       const [es, ps] = [await tx.get(eref), await tx.get(pref)];
       if(!es.exists()) throw new Error('event missing');
       const le = es.data();
-      const j = (le.checkouts||[]).findIndex(c=>c.productId===pid);
-      if(j<0) throw new Error('already returned');
+      const lco = (le.checkouts||[]).find(c=>c.productId===pid);
+      if(!lco) throw new Error('already returned');
+      const n2 = Math.min(n, lco.qty);
       const lp = ps.exists() ? ps.data() : null;
-      if(lp){ restoreToLocations(lp, le.checkouts[j].from, le.checkouts[j].qty); tx.set(pref, clean(lp)); }
-      le.checkouts.splice(j,1);
+      returnFromCheckout(lp, lco, n2);
+      if(lco.qty<=0) le.checkouts = le.checkouts.filter(c=>c.productId!==pid);
+      if(lp) tx.set(pref, clean(lp));
       tx.set(eref, clean(le));
     });
-    if(!simMode){ restoreToLocations(byId(pid), e.checkouts[i].from, e.checkouts[i].qty); e.checkouts.splice(i,1); } // local echo
+    if(!simMode){
+      returnFromCheckout(byId(pid), co, n);
+      if(co.qty<=0) e.checkouts = e.checkouts.filter(c=>c.productId!==pid);
+    }
     openEvent(evId); renderStats();
-    toast('Returned to main inventory');
+    toast(`Returned <b>${n}</b> to main inventory`);
   }catch(err){ toast('Couldn\u2019t return: '+esc(err.message), true); }
 }
 
@@ -1526,9 +1571,11 @@ function importBackup(file){
 }
 
 /* ================= PULL LIST ================= */
-function openPullList(evId){
+function openPullList(evId, mode){
+  mode = mode || 'loc';
   const e = state.events.find(x=>x.id===evId); if(!e||!e.checkouts.length) return;
   closeModal();
+  if(mode==='compact'){ renderCompactList(e, evId); return; }
   // group by the actual locations the stock was pulled from
   const byLoc = {};
   e.checkouts.forEach(c=>{
@@ -1547,6 +1594,7 @@ function openPullList(evId){
   document.body.classList.add('printing');
   root.innerHTML = `
     <div class="pl-actions">
+      <button class="btn btn-ghost" style="color:#fff;border-color:#777" onclick="openPullList('${evId}','compact')">🗜 Compact view</button>
       <button class="btn btn-lime" onclick="window.print()">🖨 Print / Save as PDF</button>
       <button class="btn btn-ghost" style="color:#fff;border-color:#555" onclick="closePullList('${evId}')">Close</button>
     </div>
@@ -1586,6 +1634,40 @@ function openPullList(evId){
     </div>`;
   window.scrollTo(0,0);
 }
+function renderCompactList(e, evId){
+  // aggregate per product (total checked out), grouped by type, sorted by type then name
+  const items = e.checkouts.map(c=>({p: byId(c.productId), qty: c.qty}))
+    .filter(x=>x.p)
+    .sort((a,b)=> a.p.type.localeCompare(b.p.type) || displayName(a.p).localeCompare(displayName(b.p)));
+  const groups = {};
+  items.forEach(x=>{ (groups[x.p.type] = groups[x.p.type]||[]).push(x); });
+  const types = Object.keys(groups).sort((a,b)=>a.localeCompare(b));
+  const totalUnits = items.reduce((a,x)=>a+x.qty,0);
+  const now = new Date();
+  const root = document.getElementById('printRoot');
+  root.className = 'show';
+  document.body.classList.add('printing');
+  root.innerHTML = `
+    <div class="pl-actions">
+      <button class="btn btn-ghost" style="color:#fff;border-color:#777" onclick="openPullList('${evId}')">📋 Detailed view</button>
+      <button class="btn btn-lime" onclick="window.print()">🖨 Print / Save as PDF</button>
+      <button class="btn btn-ghost" style="color:#fff;border-color:#555" onclick="closePullList('${evId}')">Close</button>
+    </div>
+    <div class="pl-page" style="padding-top:20px">
+      <div class="plc-head">
+        <span class="t">Packing — ${esc(e.name)}</span>
+        <span class="s">${esc(e.date||'')} · ${totalUnits} units · ${items.length} products · printed ${now.toLocaleDateString()}</span>
+      </div>
+      <div class="plc">
+        ${types.map(t=>`
+          <h5>${esc(t)} · ${groups[t].reduce((a,x)=>a+x.qty,0)}</h5>
+          ${groups[t].map(x=>`<div class="li"><span class="cb"></span><span class="q">${x.qty}×</span><span class="nm">${esc(displayName(x.p))}</span><span class="sk">${esc(x.p.sku||'')}</span></div>`).join('')}
+        `).join('')}
+      </div>
+    </div>`;
+  window.scrollTo(0,0);
+}
+
 function closePullList(evId){
   const root = document.getElementById('printRoot');
   root.className=''; root.innerHTML='';
@@ -1646,12 +1728,15 @@ function impLev(a,b){ // small capped Levenshtein
   }
   return prev[n];
 }
+const COLOR_CANON = { GRAY:'GREY', BLCK:'BLACK' };
+const canonColor = c => COLOR_CANON[c] || c;
 function impParseTags(raw){ // size + colour from a free-text sales line
   const toks = impTokens(raw);
+  const rawToks = String(raw||'').toUpperCase().split(/[^A-Z0-9]+/).filter(Boolean); // keeps single letters for sizes
   let size=null, color=null;
   const sizeWords = {XS:'XS',S:'S',M:'M',L:'L',XL:'XL',XXL:'XXL','2XL':'XXL',SMALL:'S',MEDIUM:'M',LARGE:'L',XSMALL:'XS',XLARGE:'XL',XXLARGE:'XXL'};
+  for(const t of rawToks){ if(sizeWords[t] && !size){ size = sizeWords[t]; break; } }
   for(const t of toks){
-    if(sizeWords[t] && !size) size = sizeWords[t];
     if(MOD_COLORS[t] && !color) color = t;
     if(!size || !color){ // glued forms like XLBLACK
       for(const [pre,lab] of SIZE_PREFIXES){
@@ -1700,7 +1785,7 @@ function impMatch(line){ // returns {p, score} best candidate
     if(ltoks.length) score = Math.max(score, Math.round(inter/ltoks.length*68) + (inter>=3?6:0));
     // size/colour agreement (uses the same parser as the card tags)
     const pt = modTags(p);
-    if(ltags.color && pt.color){ score += ltags.color===pt.color.name ? 12 : -28; }
+    if(ltags.color && pt.color){ score += canonColor(ltags.color)===canonColor(pt.color.name) ? 12 : -28; }
     if(ltags.size && pt.size){ score += ltags.size===pt.size ? 12 : -28; }
     if(!best || score>best.score) best = {p, score};
   }
