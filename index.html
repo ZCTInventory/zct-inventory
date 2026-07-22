@@ -234,6 +234,51 @@ main{max-width:1240px;margin:0 auto;padding:26px 24px 80px}
 .pk-sum .val{color:var(--muted);font-weight:500;margin-left:8px}
 .pk-empty{padding:40px;text-align:center;color:var(--muted)}
 
+/* ---------- event sales charts ---------- */
+.insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.ins{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+.ins span{display:block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ins b{display:block;font-size:13.5px;margin-top:3px;line-height:1.25}
+.ins small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.ins.warn{background:var(--amber-soft);border-color:#e8d5a4}
+.chart{border:1px solid var(--line);border-radius:12px;padding:14px 16px 10px;background:#fff}
+.ch-row{display:grid;grid-template-columns:150px 1fr 118px;gap:10px;align-items:center;margin-bottom:7px}
+.ch-label{font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-track{height:20px}
+.ch-bar{height:100%;background:#E3E6DB;border-radius:5px;overflow:hidden;min-width:3px}
+.ch-sold{height:100%;background:var(--lime);border-radius:5px 0 0 5px}
+.ch-val{font-size:11px;color:var(--ink-2);text-align:right;font-weight:600;white-space:nowrap}
+.ch-legend{display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:10px;padding-top:9px;border-top:1px dashed var(--line)}
+.ch-legend .lg{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.ch-legend .lg.sold{background:var(--lime)}
+.ch-legend .lg.ret{background:#E3E6DB}
+@media(max-width:560px){.ch-row{grid-template-columns:105px 1fr 92px}}
+
+/* ---------- sales import ---------- */
+.imp-drop{border:2px dashed var(--line);border-radius:14px;padding:34px 20px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s}
+.imp-drop:hover{border-color:var(--lime-dark);background:var(--lime-soft)}
+.imp-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.imp-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:7px 8px;border-bottom:2px solid var(--ink)}
+.imp-table td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.imp-line{font-weight:600;max-width:180px}
+.imp-line small{display:block;color:var(--muted);font-weight:400;font-family:var(--font-mono);font-size:10px}
+.conf{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.conf.exact{background:var(--lime-soft);color:#5c7a12}
+.conf.likely{background:#e7f0fa;color:#2f6db5}
+.conf.guess{background:var(--amber-soft);color:var(--amber)}
+.conf.none{background:var(--red-soft);color:var(--red)}
+.imp-table select{max-width:230px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;font-size:12px}
+.imp-table input[type=number]{width:64px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;text-align:right}
+
+/* ---------- simulation mode ---------- */
+#simBanner{display:none;position:fixed;left:0;right:0;bottom:0;z-index:55;background:#5b3d8f;color:#fff;padding:11px 18px calc(11px + env(safe-area-inset-bottom));align-items:center;gap:14px;justify-content:center;box-shadow:0 -6px 20px rgba(0,0,0,.2)}
+body.sim #simBanner{display:flex}
+body.sim{padding-bottom:64px}
+#simBanner b{letter-spacing:.04em}
+#simBanner .btn{background:#fff;color:#5b3d8f;padding:7px 14px;font-size:12.5px}
+body.sim header{border-bottom:3px solid #5b3d8f}
+.sync-chip.sim{background:#efe8fa;border-color:#c9b3e8;color:#5b3d8f}
+
 /* ---------- auth gate & sync ---------- */
 #authGate{position:fixed;inset:0;background:var(--paper);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
 #authGate.hidden{display:none}
@@ -356,6 +401,7 @@ main{max-width:1240px;margin:0 auto;padding:26px 24px 80px}
 
 <div id="modalRoot"></div>
 <div id="printRoot"></div>
+<div id="simBanner"><span>🧪 <b>SIMULATION</b> — nothing here is saved or synced</span><button class="btn" onclick="exitSim()">Exit &amp; restore</button></div>
 <div id="toasts"></div>
 
 <script>
@@ -677,7 +723,7 @@ async function removeStock(id){
       loc.qty -= qty;
       tx.set(ref, clean(live));
     });
-    const loc = p.locations[li]; if(loc) loc.qty = Math.max(0, loc.qty - qty); // local echo
+    if(!simMode){ const loc = p.locations[li]; if(loc) loc.qty = Math.max(0, loc.qty - qty); } // local echo
     openProduct(id); renderInventory();
     toast(`Removed <b>${qty}</b> (${reason.toLowerCase()}) from ${esc(locName)}`);
   }catch(err){ toast('Couldn\u2019t remove stock: '+esc(err.message), true); }
@@ -985,11 +1031,12 @@ function openEvent(id){
             <div class="stat"><span>Profit</span><b>${e.profitKnown? R(e.profit):'—'}</b></div>
             <div class="stat"><span>Returned to stock</span><b>${e.unitsReturned}</b></div>
           </div>
-          ${e.profitKnown?'':'<div class="note">Profit shown as — because unit costs weren\u2019t set for some items when the event was concluded.</div>'}` : ''}
+          ${e.profitKnown?'':'<div class="note">Profit shown as — because unit costs weren\u2019t set for some items when the event was concluded.</div>'}
+          ${salesChartHTML(e)}` : ''}
         ${e.status==='active' ? `
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 16px;flex-wrap:wrap">
             <div class="subhead" style="margin:0">Stock checked out to this event</div>
-            <span style="display:flex;gap:8px">${e.checkouts.length?`<button class="btn btn-ghost" onclick="openPullList('${e.id}')">📋 Pull list</button>`:''}<button class="btn btn-lime" onclick="openPicker('${e.id}')">🛒 Add items</button></span>
+            <span style="display:flex;gap:8px;flex-wrap:wrap">${e.checkouts.length?`<button class="btn btn-ghost" onclick="openPullList('${e.id}')">📋 Pull list</button><button class="btn btn-ghost" onclick="openSalesImport('event','${e.id}')">📄 Sales report</button>`:''}<button class="btn btn-lime" onclick="openPicker('${e.id}')">🛒 Add items</button></span>
           </div>`:''}
         ${e.checkouts.length ? `
         <table class="co-table">
@@ -1195,7 +1242,7 @@ async function confirmPicker(){
         else le.checkouts.push({productId:pid, qty, from});
         tx.set(pref, clean(lp)); tx.set(eref, clean(le));
       });
-      applyCheckout(e, pid, qty); // local echo for instant UI
+      if(!simMode) applyCheckout(e, pid, qty); // local echo for instant UI (sim mutates state directly)
       added+=qty; products++;
     }catch(err){
       const p=byId(pid); failed.push((p?displayName(p):pid)+' ('+err.message+')');
@@ -1223,8 +1270,7 @@ async function returnCheckout(evId, pid){
       le.checkouts.splice(j,1);
       tx.set(eref, clean(le));
     });
-    restoreToLocations(byId(pid), e.checkouts[i].from, e.checkouts[i].qty); // local echo
-    e.checkouts.splice(i,1);
+    if(!simMode){ restoreToLocations(byId(pid), e.checkouts[i].from, e.checkouts[i].qty); e.checkouts.splice(i,1); } // local echo
     openEvent(evId); renderStats();
     toast('Returned to main inventory');
   }catch(err){ toast('Couldn\u2019t return: '+esc(err.message), true); }
@@ -1268,7 +1314,7 @@ async function deleteEvent(id){
         });
         tx.delete(eref);
       });
-      e.checkouts.forEach(c=> restoreToLocations(byId(c.productId), c.from, c.qty)); // local echo
+      if(!simMode) e.checkouts.forEach(c=> restoreToLocations(byId(c.productId), c.from, c.qty)); // local echo
     }catch(err){ toast('Couldn\u2019t delete: '+esc(err.message), true); return; }
   } else {
     if(!confirm('Delete this event record?')) return;
@@ -1374,7 +1420,7 @@ async function finalizeEvent(evId){
         const cost = lp && lp.cost!=null && lp.cost!=='' ? Number(lp.cost) : null;
         if(lp && rem>0){ restoreToLocations(lp, c.from, rem); }
         if(lp) tx.set(refs[i], clean(lp));
-        results.push({productId:c.productId, returned:rem, sold});
+        results.push({productId:c.productId, returned:rem, sold, price, revenue: sold*price});
         units+=sold; rev+=sold*price; returned+=rem;
         if(cost==null){ if(sold>0) costKnown=false; } else profit += sold*(price-cost);
       });
@@ -1383,12 +1429,14 @@ async function finalizeEvent(evId){
       tx.set(eref, clean(le));
       summary = {units, rev};
     });
-    // local echo
-    e.checkouts.forEach(c=>{
-      const rem = remaining[c.productId]!=null ? Math.min(c.qty, remaining[c.productId]) : c.qty;
-      if(rem>0) restoreToLocations(byId(c.productId), c.from, rem);
-    });
-    e.status='closed';
+    // local echo (sim's localTx already wrote the closed event + restored stock into state)
+    if(!simMode){
+      e.checkouts.forEach(c=>{
+        const rem = remaining[c.productId]!=null ? Math.min(c.qty, remaining[c.productId]) : c.qty;
+        if(rem>0) restoreToLocations(byId(c.productId), c.from, rem);
+      });
+      e.status='closed';
+    }
     renderEvents(); renderInventory(); openEvent(evId);
     toast(`<b>${esc(e.name)}</b> concluded — ${summary.units} sold, ${R(summary.rev)} revenue`);
   }catch(err){
@@ -1412,6 +1460,7 @@ function openData(){
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn btn-primary" onclick="exportBackup()">⬇ Download backup</button>
           <button class="btn btn-ghost" onclick="document.getElementById('restoreFile').click()">⬆ Restore from backup</button>
+          <button class="btn btn-ghost" onclick="closeModal();openSalesImport('inventory')">📄 Import iKhokha sales</button>
         </div>
         <input type="file" id="restoreFile" accept=".json,application/json" style="display:none" onchange="importBackup(this.files[0])">
         <p style="margin-top:14px;font-size:12.5px;color:var(--muted)">Restoring replaces the shared database for <b>everyone</b> with the backup's contents.</p>
@@ -1419,6 +1468,9 @@ function openData(){
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <span style="font-size:13px;color:var(--ink-2)">Signed in as <b>${esc(email)}</b></span>
           <button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign out</button>
+        </div>
+        <div style="margin-top:18px;padding-top:12px;border-top:1px dashed var(--line)">
+          <button onclick="enterSim()" style="background:none;border:none;color:var(--muted);font-size:12px;text-decoration:underline;padding:0">🧪 Enter simulation mode</button>
         </div>
       </div>
     </div>
@@ -1444,6 +1496,7 @@ function importBackup(file){
   reader.onerror = ()=> toast('Couldn\u2019t read that file', true);
   reader.onload = async ()=>{
     try{
+      if(simMode) throw new Error('exit simulation mode first');
       const parsed = JSON.parse(reader.result);
       const s = parsed && parsed.state ? parsed.state : parsed;
       if(!s || !Array.isArray(s.products) || !s.products.length || !s.products[0].locations)
@@ -1540,6 +1593,413 @@ function closePullList(evId){
   if(evId) openEvent(evId);
 }
 
+/* ================= EVENT SALES CHART ================= */
+function salesChartHTML(e){
+  const rows = (e.results||[]).map(r=>{
+    const p = byId(r.productId);
+    const price = r.price!=null ? r.price : (p ? (p.price||0) : 0);
+    const out = (r.sold||0) + (r.returned||0);
+    return { name: p?displayName(p):'(deleted product)', sold:r.sold||0, returned:r.returned||0, out,
+      revenue: r.revenue!=null ? r.revenue : (r.sold||0)*price,
+      st: out ? (r.sold||0)/out : 0 };
+  }).sort((a,b)=> b.sold-a.sold || b.revenue-a.revenue);
+  if(!rows.length) return '';
+  const maxOut = Math.max(1, ...rows.map(r=>r.out));
+  const totOut = rows.reduce((a,r)=>a+r.out,0), totSold = rows.reduce((a,r)=>a+r.sold,0);
+  const top = rows[0].sold>0 ? rows[0] : null;
+  const dead = rows.filter(r=>r.sold===0);
+  const bestST = rows.filter(r=>r.sold>0).sort((a,b)=>b.st-a.st)[0];
+  return `
+  <div class="subhead" style="margin-top:20px">Sales breakdown</div>
+  <div class="insights">
+    <div class="ins"><span>Overall sell-through</span><b>${totOut? Math.round(totSold/totOut*100):0}%</b><small>${totSold} of ${totOut} units sold</small></div>
+    ${top?`<div class="ins"><span>Top seller</span><b>${esc(top.name)}</b><small>${top.sold} sold · ${R(top.revenue)}</small></div>`:''}
+    ${bestST && bestST!==top ?`<div class="ins"><span>Best sell-through</span><b>${esc(bestST.name)}</b><small>${Math.round(bestST.st*100)}% of ${bestST.out} sold</small></div>`:''}
+    ${dead.length?`<div class="ins warn"><span>Didn\u2019t sell</span><b>${dead.length} item${dead.length!==1?'s':''}</b><small>${esc(dead.slice(0,3).map(d=>d.name).join(', '))}${dead.length>3?' +'+(dead.length-3)+' more':''}</small></div>`:''}
+  </div>
+  <div class="chart">
+    ${rows.map(r=>`<div class="ch-row">
+        <div class="ch-label" title="${esc(r.name)}">${esc(r.name)}</div>
+        <div class="ch-track"><div class="ch-bar" style="width:${(r.out/maxOut*100).toFixed(1)}%"><div class="ch-sold" style="width:${(r.out? r.sold/r.out*100:0).toFixed(1)}%"></div></div></div>
+        <div class="ch-val">${r.sold}/${r.out} sold · ${R(r.revenue)}</div>
+      </div>`).join('')}
+    <div class="ch-legend"><span><i class="lg sold"></i>Sold</span><span><i class="lg ret"></i>Returned to stock</span></div>
+  </div>`;
+}
+
+/* ================= iKHOKHA SALES IMPORT ================= */
+let salesImport = null; // {mode:'inventory'|'event', evId, lines:[...]}
+
+const impNorm = s => String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+function impTokens(s){
+  return String(s||'').toUpperCase().split(/[^A-Z0-9]+/).filter(t=>t.length>=2);
+}
+function impLev(a,b){ // small capped Levenshtein
+  if(Math.abs(a.length-b.length)>6) return 99;
+  const m=a.length,n=b.length; if(!m||!n) return Math.max(m,n);
+  let prev=[...Array(n+1).keys()];
+  for(let i=1;i<=m;i++){
+    const cur=[i];
+    for(let j=1;j<=n;j++)
+      cur[j]=Math.min(prev[j]+1, cur[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1));
+    prev=cur;
+  }
+  return prev[n];
+}
+function impParseTags(raw){ // size + colour from a free-text sales line
+  const toks = impTokens(raw);
+  let size=null, color=null;
+  const sizeWords = {XS:'XS',S:'S',M:'M',L:'L',XL:'XL',XXL:'XXL','2XL':'XXL',SMALL:'S',MEDIUM:'M',LARGE:'L',XSMALL:'XS',XLARGE:'XL',XXLARGE:'XXL'};
+  for(const t of toks){
+    if(sizeWords[t] && !size) size = sizeWords[t];
+    if(MOD_COLORS[t] && !color) color = t;
+    if(!size || !color){ // glued forms like XLBLACK
+      for(const [pre,lab] of SIZE_PREFIXES){
+        if(t.startsWith(pre) && MOD_COLORS[t.slice(pre.length)]){ size=size||lab; color=color||t.slice(pre.length); break; }
+      }
+    }
+  }
+  if(!color){ // compound colours in de-spaced string (FOREST GREEN, LIGHT PINK)
+    const flat = impNorm(raw);
+    for(const k of Object.keys(MOD_COLORS).sort((a,b)=>b.length-a.length)){
+      if(k.length>=6 && flat.includes(k)){ color=k; break; }
+    }
+  }
+  return {size, color};
+}
+
+function impMatch(line){ // returns {p, score} best candidate
+  const lnorm = impNorm(line.name), lsku = impNorm(line.sku||'');
+  const ltoks = impTokens(line.name);
+  const ltags = impParseTags(line.name + ' ' + (line.sku||''));
+  let best = null;
+  for(const p of state.products){
+    let score = 0;
+    const psku = impNorm(p.sku||'');
+    if(psku){
+      if(psku===lsku || psku===lnorm) score = 100;
+      else if(lsku && psku.length>=4 && (lsku.includes(psku)||psku.includes(lsku))) score = 94;
+      else if(psku.length>=5 && lnorm.includes(psku)) score = 92;
+      else if(psku.length>=6){ // typo-tolerant SKU: 1-2 chars off still counts
+        const dS = lsku ? impLev(lsku,psku) : 99;
+        const dN = lnorm.length>=psku.length-2 && lnorm.length<=psku.length+2 ? impLev(lnorm,psku) : 99;
+        const d = Math.min(dS,dN);
+        if(d<=1) score = Math.max(score, 88);
+        else if(d===2) score = Math.max(score, 74);
+      }
+    }
+    const pname = impNorm(p.item+p.modifier), pfull = impNorm(p.type+p.item+p.modifier), pdesc = impNorm(p.descriptor);
+    if(lnorm && (lnorm===pname||lnorm===pfull||lnorm===pdesc||lnorm===impNorm(p.item))) score = Math.max(score, 88);
+    if(lnorm.length>=8){
+      const d = Math.min(impLev(lnorm,pname), impLev(lnorm,pdesc||'~~~~'));
+      if(d<=2 || d/lnorm.length<0.15) score = Math.max(score, 80);
+    }
+    // token overlap against everything we know about the product
+    const ptokSet = new Set(impTokens([p.type,p.item,p.modifier,p.descriptor,p.sku].join(' ')));
+    const inter = ltoks.filter(t=>ptokSet.has(t)).length;
+    if(ltoks.length) score = Math.max(score, Math.round(inter/ltoks.length*68) + (inter>=3?6:0));
+    // size/colour agreement (uses the same parser as the card tags)
+    const pt = modTags(p);
+    if(ltags.color && pt.color){ score += ltags.color===pt.color.name ? 12 : -28; }
+    if(ltags.size && pt.size){ score += ltags.size===pt.size ? 12 : -28; }
+    if(!best || score>best.score) best = {p, score};
+  }
+  return best && best.score>=40 ? best : null;
+}
+
+function impConf(score){
+  if(score>=85) return ['exact','Exact'];
+  if(score>=62) return ['likely','Likely'];
+  return ['guess','Guess'];
+}
+
+/* ---- file parsing ---- */
+function parseDelimited(text){
+  const firstLines = text.split(/\r?\n/).slice(0,5).join('\n');
+  const counts = [',',';','\t'].map(d=>({d, n:(firstLines.match(new RegExp(d==='\t'?'\\t':d,'g'))||[]).length}));
+  const delim = counts.sort((a,b)=>b.n-a.n)[0].n>0 ? counts.sort((a,b)=>b.n-a.n)[0].d : ',';
+  const rows=[]; let row=[], cell='', inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQ){
+      if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else inQ=false; }
+      else cell+=c;
+    } else if(c==='"') inQ=true;
+    else if(c===delim){ row.push(cell); cell=''; }
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&text[i+1]==='\n') i++; row.push(cell); cell=''; if(row.some(x=>x.trim()!=='')) rows.push(row); row=[]; }
+    else cell+=c;
+  }
+  if(cell!==''||row.length){ row.push(cell); if(row.some(x=>x.trim()!=='')) rows.push(row); }
+  return rows;
+}
+
+function loadScriptOnce(src){
+  return new Promise((res,rej)=>{
+    if(document.querySelector(`script[src="${src}"]`)) return res();
+    const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=()=>rej(new Error('couldn\u2019t load the spreadsheet reader — check the connection'));
+    document.head.appendChild(s);
+  });
+}
+
+async function readSalesFile(file){
+  if(/\.(xlsx|xls)$/i.test(file.name)){
+    await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array'});
+    const csv = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
+    return parseDelimited(csv);
+  }
+  return parseDelimited(await file.text());
+}
+
+function analyzeSales(rows){
+  if(!rows.length) throw new Error('the file appears to be empty');
+  // find a header row in the first 10 rows
+  const H = {name:/item|product|desc|name/i, qty:/qty|quant|unit|count|sold|number/i,
+             amt:/amount|total|price|value|gross|net|sale/i, sku:/sku|code|barcode|ref|plu/i};
+  let headerRow=-1, cols={};
+  for(let r=0;r<Math.min(10,rows.length);r++){
+    const cells = rows[r].map(c=>String(c||''));
+    const nameC = cells.findIndex(c=>H.name.test(c));
+    if(nameC>=0){
+      headerRow=r;
+      cols.name=nameC;
+      cols.qty = cells.findIndex(c=>H.qty.test(c));
+      cols.amt = cells.findIndex((c,i)=>i!==nameC && H.amt.test(c));
+      cols.sku = cells.findIndex((c,i)=>i!==nameC && H.sku.test(c));
+      break;
+    }
+  }
+  let start;
+  if(headerRow>=0){ start=headerRow+1; }
+  else{ // no header: infer columns
+    start=0; const n=Math.max(...rows.map(r=>r.length));
+    let bestTxt={i:-1,len:0}, bestInt={i:-1,n:0}, bestDec={i:-1,n:0};
+    for(let i=0;i<n;i++){
+      let len=0,ints=0,decs=0,cnt=0;
+      rows.slice(0,30).forEach(r=>{ const v=String(r[i]||'').trim(); if(!v) return; cnt++;
+        if(/^-?\d{1,4}$/.test(v)) ints++;
+        else if(/^-?[\d\s]+[.,]\d{2}$/.test(v)) decs++;
+        else len+=v.length; });
+      if(len>bestTxt.len) bestTxt={i,len};
+      if(ints>bestInt.n) bestInt={i,n:ints};
+      if(decs>bestDec.n) bestDec={i,n:decs};
+    }
+    cols={name:bestTxt.i, qty:bestInt.i, amt:bestDec.i, sku:-1};
+  }
+  if(cols.name<0) throw new Error('couldn\u2019t find an item/description column');
+  // aggregate
+  const agg = new Map();
+  for(let r=start;r<rows.length;r++){
+    const row=rows[r];
+    const name = String(row[cols.name]||'').trim();
+    if(!name || /^(sub)?totals?\b/i.test(name)) continue;
+    let qty = 1;
+    if(cols.qty>=0){
+      const q = parseFloat(String(row[cols.qty]||'').replace(',','.'));
+      if(!isNaN(q)) qty = Math.round(q); else continue;
+    }
+    if(qty===0) continue;
+    let amt = 0;
+    if(cols.amt>=0){ const a=parseFloat(String(row[cols.amt]||'').replace(/[^0-9.,-]/g,'').replace(',','.')); if(!isNaN(a)) amt=a; }
+    const sku = cols.sku>=0 ? String(row[cols.sku]||'').trim() : '';
+    const key = impNorm(name)+'|'+impNorm(sku);
+    const cur = agg.get(key) || {name, sku, qty:0, amount:0};
+    cur.qty += qty; cur.amount += amt;
+    agg.set(key, cur);
+  }
+  const lines = [...agg.values()];
+  if(!lines.length) throw new Error('no sales lines found in the file');
+  return lines;
+}
+
+/* ---- import UI ---- */
+function openSalesImport(mode, evId){
+  salesImport = {mode, evId: evId||null, lines: null};
+  const ctx = mode==='event' ? 'conclude this event from' : 'update the main inventory from';
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+  <div class="overlay" onclick="if(event.target===this) closeSalesImport()">
+    <div class="modal">
+      <div class="m-head"><h3>Import iKhokha sales</h3><button class="m-close" onclick="closeSalesImport()">✕</button></div>
+      <div class="m-body" id="impBody">
+        <p style="margin-bottom:14px;color:var(--ink-2)">Upload the sales report exported from your iKhokha dashboard to ${ctx} it. CSV and Excel files both work — the matcher is deliberately forgiving and you review every line before anything is applied.</p>
+        <div class="imp-drop" onclick="document.getElementById('impFile').click()">
+          <div style="font-size:26px;margin-bottom:6px">📄</div>
+          Tap to choose the report file<br><small>.csv, .xlsx or .xls</small>
+        </div>
+        <input type="file" id="impFile" accept=".csv,.xlsx,.xls,text/csv" style="display:none" onchange="handleSalesFile(this.files[0])">
+      </div>
+      <div class="m-foot" id="impFoot">
+        <button class="btn btn-ghost" onclick="closeSalesImport()">Cancel</button>
+      </div>
+    </div>
+  </div>`;
+}
+function closeSalesImport(){
+  const evId = salesImport && salesImport.evId;
+  salesImport = null;
+  if(evId) openEvent(evId); else closeModal();
+}
+
+async function handleSalesFile(file){
+  if(!file || !salesImport) return;
+  try{
+    const rows = await readSalesFile(file);
+    salesImport.lines = analyzeSales(rows).map(l=>{
+      const m = impMatch(l);
+      return {...l, chosen: m ? m.p.id : '', score: m ? m.score : 0};
+    });
+    renderSalesReview();
+  }catch(err){ toast('Couldn\u2019t read the report: '+esc(err.message), true); }
+}
+
+function productOptions(sel){
+  return '<option value="">— skip this line —</option>' + state.products
+    .slice().sort((a,b)=> a.type.localeCompare(b.type) || displayName(a).localeCompare(displayName(b)))
+    .map(p=>`<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(p.type)} · ${esc(displayName(p))}</option>`).join('');
+}
+
+function renderSalesReview(){
+  const si = salesImport; if(!si || !si.lines) return;
+  const matched = si.lines.filter(l=>l.chosen).length;
+  document.getElementById('impBody').innerHTML = `
+    <p style="margin-bottom:12px;color:var(--ink-2)"><b>${matched}</b> of <b>${si.lines.length}</b> report lines matched automatically. Fix any mismatches below — nothing is applied until you confirm.</p>
+    <div style="overflow-x:auto"><table class="imp-table">
+      <thead><tr><th>Report line</th><th style="text-align:right">Qty</th><th>Matched product</th><th></th></tr></thead>
+      <tbody>
+      ${si.lines.map((l,i)=>{
+        const [cls,lab] = l.chosen ? impConf(l.score) : ['none','No match'];
+        return `<tr>
+          <td class="imp-line">${esc(l.name)}${l.sku?`<small>${esc(l.sku)}</small>`:''}${l.amount?`<small>${R(l.amount)}</small>`:''}</td>
+          <td style="text-align:right"><input type="number" value="${l.qty}" onchange="salesImport.lines[${i}].qty=parseInt(this.value)||0"></td>
+          <td><select onchange="salesImport.lines[${i}].chosen=this.value; salesImport.lines[${i}].score=999; renderSalesReview()">${productOptions(l.chosen)}</select></td>
+          <td><span class="conf ${cls}">${l.score===999?'Manual':lab}</span></td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>
+    ${si.mode==='event'?'<p style="margin-top:12px;font-size:12px;color:var(--muted)">Next step: these sold quantities pre-fill the conclude screen for review — leftovers are worked out automatically.</p>':''}`;
+  document.getElementById('impFoot').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeSalesImport()">Cancel</button>
+    <button class="btn btn-primary" onclick="applySalesImport()">${si.mode==='event'?'Continue to conclude':'Apply to inventory'}</button>`;
+}
+
+async function applySalesImport(){
+  const si = salesImport; if(!si || !si.lines) return;
+  const use = si.lines.filter(l=>l.chosen && l.qty!==0);
+  if(!use.length){ toast('Nothing selected to apply', true); return; }
+  // merge duplicate product picks
+  const perProduct = new Map();
+  use.forEach(l=> perProduct.set(l.chosen, (perProduct.get(l.chosen)||0) + l.qty));
+
+  if(si.mode==='event'){
+    const evId = si.evId;
+    const e = state.events.find(x=>x.id===evId);
+    if(!e || e.status!=='active'){ toast('Event is no longer active', true); return; }
+    const inEvent = new Set(e.checkouts.map(c=>c.productId));
+    const missing = [...perProduct.keys()].filter(pid=>!inEvent.has(pid));
+    salesImport = null;
+    openConclude(evId);
+    let over = [];
+    document.querySelectorAll('tr[data-pid]').forEach(tr=>{
+      const pid = tr.dataset.pid, out = parseInt(tr.dataset.out);
+      const sold = perProduct.get(pid) || 0;
+      if(sold > out) over.push(byId(pid) ? displayName(byId(pid)) : pid);
+      tr.querySelector('.cRem').value = Math.max(0, out - sold);
+    });
+    concludeTotals();
+    toast('<b>Report applied</b> — check the numbers, then confirm to conclude');
+    if(over.length) toast('Report shows more sold than checked out: '+esc(over.join(', '))+' — capped at checked-out qty', true);
+    if(missing.length) toast(esc(missing.length + ' report line(s) matched products not in this event — ignored'), true);
+    return;
+  }
+
+  // inventory mode: deduct (or restock negatives) per product, transactionally
+  const btn = document.querySelector('#impFoot .btn-primary');
+  if(btn){ btn.disabled=true; btn.textContent='Applying…'; }
+  let applied=0, shortfalls=[], failures=[];
+  for(const [pid, qty] of perProduct){
+    try{
+      let short=0;
+      await cloudTx(async tx=>{
+        const ref = fb.doc(db,'products',pid);
+        const s = await tx.get(ref);
+        if(!s.exists()) throw new Error('product missing');
+        const p = s.data();
+        if(qty>0){
+          let remaining=qty;
+          for(const loc of p.locations){ if(remaining<=0)break; const take=Math.min(loc.qty,remaining); loc.qty-=take; remaining-=take; }
+          short = remaining;
+        } else {
+          if(!p.locations.length) p.locations=[{name:'Unassigned', qty:0}];
+          p.locations[0].qty += -qty; // refund/negative restocks
+        }
+        tx.set(ref, clean(p));
+      });
+      if(!simMode){
+        const p = byId(pid);
+        if(p){
+          if(qty>0){ let remaining=qty; for(const loc of p.locations){ if(remaining<=0)break; const take=Math.min(loc.qty,remaining); loc.qty-=take; remaining-=take; } }
+          else { if(!p.locations.length) p.locations=[{name:'Unassigned',qty:0}]; p.locations[0].qty += -qty; }
+        }
+      }
+      applied += Math.abs(qty)-short;
+      if(short>0) shortfalls.push((byId(pid)?displayName(byId(pid)):pid)+' (short '+short+')');
+    }catch(err){ failures.push((byId(pid)?displayName(byId(pid)):pid)+' ('+err.message+')'); }
+  }
+  salesImport = null; closeModal(); renderInventory();
+  toast('<b>'+applied+'</b> unit'+(applied!==1?'s':'')+' updated from the report');
+  if(shortfalls.length) toast('Stock ran out before the report was covered: '+esc(shortfalls.join(', ')), true);
+  if(failures.length) toast('Failed: '+esc(failures.join(', ')), true);
+}
+
+/* ================= SIMULATION MODE ================= */
+let simMode = false, simBackup = null;
+function refParts(ref){
+  if(ref.col) return [ref.col, ref.id];
+  const parts = String(ref.path||'').split('/');
+  return [parts[parts.length-2], parts[parts.length-1]];
+}
+function localTx(fn){
+  const arrFor = col => col==='products' ? state.products : state.events;
+  return Promise.resolve(fn({
+    get: async ref => { const [col,id]=refParts(ref); const d = arrFor(col).find(x=>x.id===id);
+      return { exists:()=>!!d, data:()=> clean(d) }; },
+    set: (ref, data) => { const [col,id]=refParts(ref); const arr = arrFor(col);
+      const i = arr.findIndex(x=>x.id===id); if(i>=0) arr[i]=data; else arr.push(data); },
+    delete: ref => { const [col,id]=refParts(ref); const arr = arrFor(col);
+      const i = arr.findIndex(x=>x.id===id); if(i>=0) arr.splice(i,1); }
+  }));
+}
+function enterSim(){
+  if(simMode) return;
+  if(!cloudReady){ toast('Wait for the inventory to finish syncing first', true); return; }
+  simBackup = clean(state);
+  if(unsubP){ unsubP(); unsubP=null; }
+  if(unsubE){ unsubE(); unsubE=null; }
+  simMode = true;
+  document.body.classList.add('sim');
+  setChip('sim','Simulation');
+  closeModal(); refreshUI();
+  toast('🧪 <b>Simulation started</b> — play freely, nothing is saved');
+}
+function exitSim(){
+  if(!simMode) return;
+  if(!confirm('Exit simulation?\n\nEverything you did in the simulation will be discarded and the real shared inventory restored.')) return;
+  simMode = false;
+  state = simBackup || {products:[],events:[],seq:1};
+  simBackup = null;
+  document.body.classList.remove('sim');
+  setChip(navigator.onLine?'live':'off', navigator.onLine?'Live':'Offline — will sync');
+  closeModal();
+  const pr = document.getElementById('printRoot');
+  if(pr){ pr.className=''; pr.innerHTML=''; document.body.classList.remove('printing'); }
+  startListeners(); // re-sync with the real database
+  refreshUI();
+  toast('<b>Back to reality</b> — live inventory restored');
+}
+
 /* ================= CLOUD SYNC (Firebase) ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyCEANuU6W0bAU18TiY6rsuU-pLGp714E3g",
@@ -1554,19 +2014,20 @@ let fb=null, db=null, authUser=null, unsubP=null, unsubE=null, seedChecked=false
 const clean = o => JSON.parse(JSON.stringify(o));
 
 function cloudTx(fn){
+  if(simMode) return localTx(fn);
   if(!db) return Promise.reject(new Error('not connected — check internet and refresh'));
   return fb.runTransaction(db, fn);
 }
 function pushProduct(p){
-  if(!db) return;
+  if(simMode || !db) return; // in simulation, local state is already mutated
   fb.setDoc(fb.doc(db,'products',p.id), clean(p)).catch(err=>toast('Sync save failed: '+esc(err.message), true));
 }
 function pushEvent(e){
-  if(!db) return;
+  if(simMode || !db) return;
   fb.setDoc(fb.doc(db,'events',e.id), clean(e)).catch(err=>toast('Sync save failed: '+esc(err.message), true));
 }
 function removeDoc(col, id){
-  if(!db) return;
+  if(simMode || !db) return;
   fb.deleteDoc(fb.doc(db,col,id)).catch(err=>toast('Sync delete failed: '+esc(err.message), true));
 }
 
@@ -1607,6 +2068,7 @@ async function doLogin(){
 }
 
 async function doLogout(){
+  if(simMode){ toast('Exit simulation mode before signing out', true); return; }
   try{
     if(unsubP){ unsubP(); unsubP=null; }
     if(unsubE){ unsubE(); unsubE=null; }
