@@ -254,6 +254,53 @@ main{max-width:1240px;margin:0 auto;padding:26px 24px 80px}
 .ch-legend .lg.ret{background:#E3E6DB}
 @media(max-width:560px){.ch-row{grid-template-columns:105px 1fr 92px}}
 
+/* ---------- event POS ---------- */
+#posRoot{display:none}
+#posRoot.show{display:flex;flex-direction:column;position:fixed;inset:0;background:var(--paper);z-index:110}
+.pos-head{display:flex;align-items:center;gap:12px;background:var(--ink);color:#fff;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top))}
+.pos-head .back{border:none;background:rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:9px 14px;font-weight:600}
+.pos-head h3{font-family:var(--font-display);font-size:17px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pos-tot{text-align:right;font-size:11px;color:#9aa192;line-height:1.3}
+.pos-tot b{display:block;color:var(--lime);font-family:var(--font-display);font-size:17px}
+.pos-scroll{flex:1;overflow-y:auto;padding:14px 16px calc(96px + env(safe-area-inset-bottom))}
+.pos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.pos-tile{background:#fff;border:1.5px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;user-select:none;transition:.12s;text-align:left}
+.pos-tile:active{transform:scale(.97)}
+.pos-tile:hover{border-color:var(--lime-dark)}
+.pos-tile .img{aspect-ratio:1.25;background:#EDEFE6}
+.pos-tile .img img{width:100%;height:100%;object-fit:cover}
+.pos-tile .inf{padding:9px 11px 11px}
+.pos-tile .nm{font-size:13px;font-weight:700;line-height:1.25;min-height:32px}
+.pos-tile .mt{display:flex;justify-content:space-between;align-items:center;margin-top:5px;font-size:11px;color:var(--muted)}
+.pos-tile .mt b{font-family:var(--font-display);font-size:15px;color:var(--ink)}
+.pos-bar{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:12px;box-shadow:0 -8px 24px rgba(19,23,17,.08)}
+.pos-bar .sum{flex:1;font-weight:700;font-size:14.5px}
+.pos-bar .sum small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
+.pos-bar .btn{padding:13px 26px;font-size:15px}
+.pos-sheet{position:absolute;inset:0;background:rgba(19,23,17,.5);display:flex;align-items:flex-end;justify-content:center;z-index:5}
+.pos-card{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:82%;display:flex;flex-direction:column;animation:up .18s ease}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+.pos-card .hd{display:flex;align-items:center;gap:10px;padding:16px 20px 10px}
+.pos-card .hd h4{font-family:var(--font-display);font-size:17px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;flex:1}
+.pos-card .bd{overflow-y:auto;padding:4px 20px 20px}
+.var-row{display:flex;align-items:center;gap:12px;width:100%;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:9px;cursor:pointer;font-size:14px;text-align:left}
+.var-row:hover{border-color:var(--lime-dark);background:var(--lime-soft)}
+.var-row:disabled{opacity:.4;cursor:not-allowed}
+.var-row .dot{width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--line);flex-shrink:0}
+.var-row .sz{font-family:var(--font-display);font-weight:600;font-size:16px;min-width:38px}
+.var-row .lbl{flex:1;font-weight:600}
+.var-row .rem{font-size:11.5px;color:var(--muted)}
+.var-row .pr{font-family:var(--font-display);font-weight:600;font-size:15px}
+.cart-line{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.cart-line .nm{flex:1;font-weight:600;line-height:1.25}
+.cart-line .nm small{display:block;color:var(--muted);font-weight:500;font-size:11px}
+.cart-line .stepper{margin-top:0;width:104px;flex-shrink:0}
+.cart-line .lt{font-family:var(--font-display);font-weight:600;min-width:64px;text-align:right}
+.pay-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+.pay-btns .btn{justify-content:center;padding:16px 8px;font-size:15px;flex-direction:column;gap:2px}
+.pay-btns small{font-size:10.5px;font-weight:500;opacity:.75}
+.pos-note{font-size:12px;color:var(--muted);margin-top:10px;text-align:center}
+
 /* ---------- sales import ---------- */
 .imp-drop{border:2px dashed var(--line);border-radius:14px;padding:34px 20px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s}
 .imp-drop:hover{border-color:var(--lime-dark);background:var(--lime-soft)}
@@ -414,6 +461,7 @@ body.sim header{border-bottom:3px solid #5b3d8f}
 
 <div id="modalRoot"></div>
 <div id="printRoot"></div>
+<div id="posRoot"></div>
 <div id="simBanner"><span>🧪 <b>SIMULATION</b> — nothing here is saved or synced</span><button class="btn" onclick="exitSim()">Exit &amp; restore</button></div>
 <div id="toasts"></div>
 
@@ -1019,13 +1067,11 @@ function openEvent(id){
     const res = e.status==='closed' ? (e.results||[]).find(r=>r.productId===c.productId) : null;
     return `<tr>
       <td><div class="co-item"><img class="co-thumb" src="${imgSrc(p)}"><div>${esc(displayName(p))}<small>${esc(p.sku||'')}</small></div></div></td>
-      <td class="num">${c.qty}</td>
-      <td class="num">${R(p.price)}</td>
       ${e.status==='closed'
-        ? `<td class="num">${res?res.returned:'—'}</td><td class="num sold-chip">${res?res.sold:'—'}</td>`
-        : `<td class="num"><span style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end">
-            <input type="number" class="qty-in" id="ret_${c.productId}" value="${c.qty}" min="1" max="${c.qty}" title="How many to return">
-            <button class="btn btn-ghost btn-sm" onclick="returnCheckout('${e.id}','${c.productId}')">Return</button></span></td>`}
+        ? `<td class="num">${c.qty}</td><td class="num">${R(p.price)}</td><td class="num">${res?res.returned:'—'}</td><td class="num sold-chip">${res?res.sold:'—'}</td>`
+        : `<td class="num"><input type="number" class="qty-in" id="co_${c.productId}" value="${c.qty}" min="0" title="Edit, then press Update"></td>
+           <td class="num">${R(p.price)}</td>
+           <td class="num"><button class="btn btn-ghost btn-sm" onclick="adjustCheckout('${e.id}','${c.productId}')">Update</button></td>`}
     </tr>`;
   }).join('');
 
@@ -1038,7 +1084,7 @@ function openEvent(id){
         <button class="m-close" onclick="closeModal()">✕</button>
       </div>
       <div class="m-body">
-        <div class="ev-meta" style="margin-top:-6px">${esc(e.date||'')}</div>
+        <div class="ev-meta" style="margin-top:-6px">${esc(e.date||'')}${(e.sales&&e.sales.length)?(()=>{const t=posSalesTotals(e);const pays=Object.entries(t.byPay).map(([k,v])=>k+' '+R(v)).join(', ');return ` · 💰 rung up: ${t.units} units · ${R(t.revenue)} (${pays})`;})():''}</div>
         ${e.status==='closed' ? `
           <div class="summary-band">
             <div class="stat"><span>Units sold</span><b>${e.unitsSold}</b></div>
@@ -1051,14 +1097,14 @@ function openEvent(id){
         ${e.status==='active' ? `
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 16px;flex-wrap:wrap">
             <div class="subhead" style="margin:0">Stock checked out to this event</div>
-            <span style="display:flex;gap:8px;flex-wrap:wrap">${e.checkouts.length?`<button class="btn btn-ghost" onclick="openPullList('${e.id}')">📋 Pull list</button><button class="btn btn-ghost" onclick="openSalesImport('event','${e.id}')">📄 Sales report</button>`:''}<button class="btn btn-lime" onclick="openPicker('${e.id}')">🛒 Add items</button></span>
+            <span style="display:flex;gap:8px;flex-wrap:wrap">${e.checkouts.length?`<button class="btn btn-ghost" onclick="openPullList('${e.id}')">📋 Pull list</button><button class="btn btn-ghost" onclick="openSalesImport('event','${e.id}')">📄 Sales report</button><button class="btn btn-primary" onclick="openPOS('${e.id}')">💰 Sell</button>`:''}<button class="btn btn-lime" onclick="openPicker('${e.id}')">🛒 Add items</button></span>
           </div>`:''}
         ${e.checkouts.length ? `
         <table class="co-table">
           <thead><tr><th>Item</th><th class="num">Checked out</th><th class="num">Price</th>
             ${e.status==='closed'?'<th class="num">Returned</th><th class="num">Sold</th>':'<th class="num"></th>'}</tr></thead>
           <tbody>${rows}</tbody>
-        </table>` : `<div class="empty" style="padding:30px"><h3>Nothing checked out yet</h3>Tap “Add items” to browse the merch and pick what’s going to this event.</div>`}
+        </table>${e.status==='active'?'<p style="margin-top:9px;font-size:12px;color:var(--muted)">Edit a quantity and press <b>Update</b> — lowering it returns stock to the main inventory, raising it checks out more, and 0 removes the item from the event.</p>':''}` : `<div class="empty" style="padding:30px"><h3>Nothing checked out yet</h3>Tap “Add items” to browse the merch and pick what’s going to this event.</div>`}
       </div>
       <div class="m-foot">
         ${e.status==='active' ? `<button class="btn btn-danger" style="margin-right:auto" onclick="deleteEvent('${e.id}')">Delete event</button>
@@ -1290,35 +1336,77 @@ function returnFromCheckout(p, co, n){
   co.qty -= n;
 }
 
-async function returnCheckout(evId, pid){
+async function doReturn(evId, pid, n){
   const e = state.events.find(x=>x.id===evId); if(!e) return;
   const co = e.checkouts.find(c=>c.productId===pid); if(!co) return;
-  const inp = document.getElementById('ret_'+pid);
-  let n = inp ? parseInt(inp.value) : co.qty;
-  if(isNaN(n) || n<1) n = co.qty;
   n = Math.min(n, co.qty);
+  await cloudTx(async tx=>{
+    const eref = fb.doc(db,'events',evId), pref = fb.doc(db,'products',pid);
+    const [es, ps] = [await tx.get(eref), await tx.get(pref)];
+    if(!es.exists()) throw new Error('event missing');
+    const le = es.data();
+    const lco = (le.checkouts||[]).find(c=>c.productId===pid);
+    if(!lco) throw new Error('already returned');
+    const n2 = Math.min(n, lco.qty);
+    const lp = ps.exists() ? ps.data() : null;
+    returnFromCheckout(lp, lco, n2);
+    if(lco.qty<=0) le.checkouts = le.checkouts.filter(c=>c.productId!==pid);
+    if(lp) tx.set(pref, clean(lp));
+    tx.set(eref, clean(le));
+  });
+  if(!simMode){
+    returnFromCheckout(byId(pid), co, n);
+    if(co.qty<=0) e.checkouts = e.checkouts.filter(c=>c.productId!==pid);
+  }
+}
+
+async function doAddMore(evId, pid, n){
+  const e = state.events.find(x=>x.id===evId); if(!e) return;
+  await cloudTx(async tx=>{
+    const pref = fb.doc(db,'products',pid), eref = fb.doc(db,'events',evId);
+    const [ps, es] = [await tx.get(pref), await tx.get(eref)];
+    if(!ps.exists()) throw new Error('product missing');
+    if(!es.exists()) throw new Error('event missing');
+    const lp = ps.data(), le = es.data();
+    if(le.status!=='active') throw new Error('event already concluded');
+    const avail = lp.locations.reduce((a,l)=>a+(Number(l.qty)||0),0);
+    if(n > avail) throw new Error('only '+avail+' left in stock');
+    let remaining=n; const from=[];
+    for(const loc of lp.locations){
+      if(remaining<=0) break;
+      const take = Math.min(loc.qty, remaining);
+      if(take>0){ loc.qty-=take; remaining-=take; from.push({name:loc.name, qty:take}); }
+    }
+    le.checkouts = le.checkouts||[];
+    let co = le.checkouts.find(c=>c.productId===pid);
+    if(co){ co.qty+=n; from.forEach(f=>{ const ex=co.from.find(x=>x.name===f.name); if(ex) ex.qty+=f.qty; else co.from.push(f); }); }
+    else le.checkouts.push({productId:pid, qty:n, from});
+    tx.set(pref, clean(lp)); tx.set(eref, clean(le));
+  });
+  if(!simMode) applyCheckout(e, pid, n);
+}
+
+async function adjustCheckout(evId, pid){
+  const e = state.events.find(x=>x.id===evId); if(!e) return;
+  const co = e.checkouts.find(c=>c.productId===pid); if(!co) return;
+  const inp = document.getElementById('co_'+pid);
+  const target = parseInt(inp && inp.value);
+  if(isNaN(target) || target<0){ toast('Enter 0 or more', true); return; }
+  const delta = target - co.qty;
+  if(delta===0){ toast('That\u2019s already the checked-out amount'); return; }
   try{
-    await cloudTx(async tx=>{
-      const eref = fb.doc(db,'events',evId), pref = fb.doc(db,'products',pid);
-      const [es, ps] = [await tx.get(eref), await tx.get(pref)];
-      if(!es.exists()) throw new Error('event missing');
-      const le = es.data();
-      const lco = (le.checkouts||[]).find(c=>c.productId===pid);
-      if(!lco) throw new Error('already returned');
-      const n2 = Math.min(n, lco.qty);
-      const lp = ps.exists() ? ps.data() : null;
-      returnFromCheckout(lp, lco, n2);
-      if(lco.qty<=0) le.checkouts = le.checkouts.filter(c=>c.productId!==pid);
-      if(lp) tx.set(pref, clean(lp));
-      tx.set(eref, clean(le));
-    });
-    if(!simMode){
-      returnFromCheckout(byId(pid), co, n);
-      if(co.qty<=0) e.checkouts = e.checkouts.filter(c=>c.productId!==pid);
+    if(delta<0){
+      await doReturn(evId, pid, -delta);
+      toast(`Updated — returned <b>${-delta}</b> to main inventory`);
+    } else {
+      await doAddMore(evId, pid, delta);
+      toast(`Updated — checked out <b>${delta}</b> more`);
     }
     openEvent(evId); renderStats();
-    toast(`Returned <b>${n}</b> to main inventory`);
-  }catch(err){ toast('Couldn\u2019t return: '+esc(err.message), true); }
+  }catch(err){
+    toast('Couldn\u2019t update: '+esc(err.message), true);
+    openEvent(evId);
+  }
 }
 
 function restoreToLocations(p, from, qty){
@@ -1388,7 +1476,7 @@ function openConclude(evId){
             return `<tr data-pid="${c.productId}" data-out="${c.qty}" data-price="${p.price||0}" data-cost="${p.cost==null?'':p.cost}">
               <td><div class="co-item"><img class="co-thumb" src="${imgSrc(p)}"><div>${esc(displayName(p))}<small>${esc(p.sku||'')}</small></div></div></td>
               <td class="num">${c.qty}</td>
-              <td class="num"><input class="qty-in cRem" type="number" min="0" max="${c.qty}" value="${c.qty}" oninput="concludeTotals()"></td>
+              <td class="num"><input class="qty-in cRem" type="number" min="0" max="${c.qty}" value="${Math.max(0, c.qty - (posSoldMap(e).get(c.productId)||0))}" oninput="concludeTotals()"></td>
               <td class="num sold-chip cSold">0</td>
               <td class="num cRev">R0</td>
             </tr>`;
@@ -1707,6 +1795,257 @@ function salesChartHTML(e){
       </div>`).join('')}
     <div class="ch-legend"><span><i class="lg sold"></i>Sold</span><span><i class="lg ret"></i>Returned to stock</span></div>
   </div>`;
+}
+
+/* ================= EVENT POINT OF SALE ================= */
+let pos = null; // {evId, cart:{pid:qty}}
+
+function posSoldMap(e){
+  const m = new Map();
+  (e.sales||[]).forEach(s=> (s.items||[]).forEach(it=> m.set(it.productId, (m.get(it.productId)||0) + it.qty)));
+  return m;
+}
+function posSalesTotals(e){
+  const t = {units:0, revenue:0, count:(e.sales||[]).length, byPay:{}};
+  (e.sales||[]).forEach(s=>{
+    t.units += (s.items||[]).reduce((a,i)=>a+i.qty,0);
+    t.revenue += s.total||0;
+    t.byPay[s.payment] = (t.byPay[s.payment]||0) + (s.total||0);
+  });
+  return t;
+}
+function posRemaining(e, pid){
+  const co = e.checkouts.find(c=>c.productId===pid);
+  if(!co) return 0;
+  return Math.max(0, co.qty - (posSoldMap(e).get(pid)||0));
+}
+
+function openPOS(evId){
+  const e = state.events.find(x=>x.id===evId); if(!e || e.status!=='active') return;
+  closeModal();
+  pos = {evId, cart:{}};
+  const root = document.getElementById('posRoot');
+  root.className = 'show';
+  root.innerHTML = `
+    <div class="pos-head">
+      <button class="back" onclick="closePOS()">‹ Back</button>
+      <h3>${esc(e.name)}</h3>
+      <button class="back" title="Undo the last sale" onclick="posUndo()">↩︎</button>
+      <div class="pos-tot" id="posTot"></div>
+    </div>
+    <div class="pos-scroll"><div class="pos-grid" id="posGrid"></div><div id="posEmpty"></div></div>
+    <div class="pos-bar" id="posBar"></div>
+    <div id="posSheet"></div>`;
+  renderPOS();
+}
+function closePOS(){
+  const evId = pos && pos.evId;
+  pos = null;
+  const root = document.getElementById('posRoot');
+  root.className=''; root.innerHTML='';
+  if(evId) openEvent(evId);
+}
+
+function posGroups(e){
+  const groups = new Map(); // item name -> variants
+  e.checkouts.forEach(c=>{
+    const p = byId(c.productId); if(!p) return;
+    const rem = posRemaining(e, c.productId);
+    const key = p.item;
+    if(!groups.has(key)) groups.set(key, []);
+    groups.get(key).push({p, rem});
+  });
+  return [...groups.entries()]
+    .map(([name, vars])=>({name, vars: vars.sort((a,b)=> (modTags(a.p).size||'') === (modTags(b.p).size||'') ? displayName(a.p).localeCompare(displayName(b.p)) : sizeOrder(modTags(a.p).size) - sizeOrder(modTags(b.p).size)),
+      rem: vars.reduce((a,v)=>a+v.rem,0)}))
+    .filter(g=>g.rem>0)
+    .sort((a,b)=> (byId(a.vars[0].p.id).type||'').localeCompare(byId(b.vars[0].p.id).type||'') || a.name.localeCompare(b.name));
+}
+function sizeOrder(s){ return ({XS:0,S:1,M:2,L:3,XL:4,XXL:5})[s] ?? 9; }
+
+function renderPOS(){
+  if(!pos) return;
+  const e = state.events.find(x=>x.id===pos.evId); if(!e){ closePOS(); return; }
+  const groups = posGroups(e);
+  const t = posSalesTotals(e);
+  document.getElementById('posTot').innerHTML = `${t.units} sold · ${t.count} sale${t.count!==1?'s':''}<b>${R(t.revenue)}</b>`;
+  const grid = document.getElementById('posGrid');
+  grid.innerHTML = groups.map((g,i)=>{
+    const prices = [...new Set(g.vars.map(v=>v.p.price||0))];
+    const priceLbl = prices.length===1 ? R(prices[0]) : R(Math.min(...prices))+'+';
+    const src = imgSrc(g.vars[0].p);
+    return `<button class="pos-tile" onclick="posTap(${i})">
+      <div class="img">${src?`<img loading="lazy" src="${src}">`:`<div class="noimg">No photo</div>`}</div>
+      <div class="inf"><div class="nm">${esc(g.name)}</div>
+      <div class="mt"><span>${g.rem} left${g.vars.length>1?` · ${g.vars.length} options`:''}</span><b>${priceLbl}</b></div></div>
+    </button>`;
+  }).join('');
+  document.getElementById('posEmpty').innerHTML = groups.length?'':'<div class="empty"><h3>Everything\u2019s sold!</h3>No stock left at this event.</div>';
+  pos.groups = groups;
+  renderPOSBar();
+}
+
+function renderPOSBar(){
+  if(!pos) return;
+  const ids = Object.keys(pos.cart);
+  const units = ids.reduce((a,id)=>a+pos.cart[id],0);
+  const total = ids.reduce((a,id)=>{ const p=byId(id); return a + pos.cart[id]*((p&&p.price)||0); },0);
+  document.getElementById('posBar').innerHTML = units
+    ? `<div class="sum">${units} item${units!==1?'s':''} · ${R(total)}<small>tap Charge to pick payment</small></div>
+       <button class="btn btn-ghost" onclick="pos.cart={};renderPOSBar()">Clear</button>
+       <button class="btn btn-primary" onclick="posOpenCart()">Charge</button>`
+    : `<div class="sum" style="color:var(--muted);font-weight:500">Tap an item to start a sale</div>`;
+}
+
+function posTap(gi){
+  if(!pos || !pos.groups) return;
+  const g = pos.groups[gi]; if(!g) return;
+  const sellable = g.vars.filter(v=>v.rem - (pos.cart[v.p.id]||0) > 0);
+  if(!sellable.length){ toast('None left of '+esc(g.name), true); return; }
+  if(g.vars.length===1){ posAdd(g.vars[0].p.id); return; }
+  // variant sheet: colour + size
+  document.getElementById('posSheet').innerHTML = `
+    <div class="pos-sheet" onclick="if(event.target===this) this.parentElement.innerHTML=''">
+      <div class="pos-card">
+        <div class="hd"><h4>${esc(g.name)}</h4><button class="m-close" onclick="document.getElementById('posSheet').innerHTML=''">✕</button></div>
+        <div class="bd">
+          ${g.vars.map(v=>{
+            const t = modTags(v.p);
+            const inCart = pos.cart[v.p.id]||0;
+            const left = v.rem - inCart;
+            return `<button class="var-row" ${left<=0?'disabled':''} onclick="posAdd('${v.p.id}')">
+              <span class="dot" style="background:${t.color?t.color.hex:'#ddd'}"></span>
+              <span class="sz">${t.size||'—'}</span>
+              <span class="lbl">${esc(t.color?titleCase(t.color.name):String(v.p.modifier||'').toUpperCase()||'Standard')}</span>
+              <span class="rem">${left} left${inCart?` · ${inCart} in cart`:''}</span>
+              <span class="pr">${R(v.p.price)}</span>
+            </button>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+function posAdd(pid){
+  if(!pos) return;
+  const e = state.events.find(x=>x.id===pos.evId); if(!e) return;
+  const left = posRemaining(e, pid) - (pos.cart[pid]||0);
+  if(left<=0){ toast('No more of that left at this event', true); return; }
+  pos.cart[pid] = (pos.cart[pid]||0)+1;
+  document.getElementById('posSheet').innerHTML='';
+  const p = byId(pid);
+  toast('Added '+esc(p?displayName(p):'')+' <b>×'+pos.cart[pid]+'</b>');
+  renderPOSBar();
+}
+
+function posSetQty(pid, qty){
+  if(!pos) return;
+  const e = state.events.find(x=>x.id===pos.evId);
+  const max = e ? posRemaining(e, pid) : 0;
+  qty = Math.min(max, Math.max(0, qty||0));
+  if(qty===0) delete pos.cart[pid]; else pos.cart[pid]=qty;
+  posOpenCart(); renderPOSBar();
+}
+
+function posOpenCart(){
+  if(!pos) return;
+  const ids = Object.keys(pos.cart);
+  if(!ids.length){ document.getElementById('posSheet').innerHTML=''; renderPOSBar(); return; }
+  const e = state.events.find(x=>x.id===pos.evId);
+  const total = ids.reduce((a,id)=>{ const p=byId(id); return a + pos.cart[id]*((p&&p.price)||0); },0);
+  document.getElementById('posSheet').innerHTML = `
+    <div class="pos-sheet" onclick="if(event.target===this) this.parentElement.innerHTML=''">
+      <div class="pos-card">
+        <div class="hd"><h4>Sale · ${R(total)}</h4><button class="m-close" onclick="document.getElementById('posSheet').innerHTML=''">✕</button></div>
+        <div class="bd">
+          ${ids.map(id=>{
+            const p = byId(id); if(!p) return '';
+            const t = modTags(p); const qty = pos.cart[id];
+            const max = e ? posRemaining(e, id) : qty;
+            return `<div class="cart-line">
+              <div class="nm">${esc(p.item)}<small>${t.color?titleCase(t.color.name):''}${t.size?' · '+t.size:''}${!t.color&&!t.size?esc(String(p.modifier||'').toUpperCase()):''} · ${R(p.price)} each</small></div>
+              <div class="stepper">
+                <button onclick="posSetQty('${id}',${qty-1})">−</button>
+                <input type="number" value="${qty}" min="0" max="${max}" onchange="posSetQty('${id}',parseInt(this.value)||0)">
+                <button onclick="posSetQty('${id}',${qty+1})" ${qty>=max?'disabled':''}>+</button>
+              </div>
+              <div class="lt">${R(qty*(p.price||0))}</div>
+            </div>`;
+          }).join('')}
+          <div class="pay-btns">
+            <button class="btn btn-primary" onclick="posComplete('Card')">💳 Card<small>${R(total)}</small></button>
+            <button class="btn btn-lime" onclick="posComplete('Cash')">💵 Cash<small>${R(total)}</small></button>
+            <button class="btn btn-ghost" onclick="posComplete('Other')">Other<small>${R(total)}</small></button>
+          </div>
+          <div class="pos-note">Choosing a payment completes the sale. Card payments still go through the iKhokha machine as usual.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function posComplete(payment){
+  if(!pos) return;
+  const evId = pos.evId;
+  const cart = {...pos.cart};
+  const ids = Object.keys(cart);
+  if(!ids.length) return;
+  const sale = {
+    id: genId('s'), ts: Date.now(), payment,
+    items: ids.map(id=>{ const p=byId(id); return {productId:id, qty:cart[id], price:(p&&p.price)||0}; })
+  };
+  sale.total = sale.items.reduce((a,i)=>a+i.qty*i.price,0);
+  try{
+    await cloudTx(async tx=>{
+      const eref = fb.doc(db,'events',evId);
+      const es = await tx.get(eref);
+      if(!es.exists()) throw new Error('event missing');
+      const le = es.data();
+      if(le.status!=='active') throw new Error('event already concluded');
+      const soldMap = posSoldMap(le);
+      for(const it of sale.items){
+        const co = (le.checkouts||[]).find(c=>c.productId===it.productId);
+        const rem = co ? co.qty - (soldMap.get(it.productId)||0) : 0;
+        if(it.qty > rem){ const p=byId(it.productId); throw new Error('only '+rem+' left of '+(p?displayName(p):'item')); }
+      }
+      le.sales = le.sales||[];
+      le.sales.push(sale);
+      tx.set(eref, clean(le));
+    });
+    if(!simMode){
+      const e = state.events.find(x=>x.id===evId);
+      if(e){ e.sales = e.sales||[]; if(!e.sales.some(s=>s.id===sale.id)) e.sales.push(sale); }
+    }
+    pos.cart = {};
+    document.getElementById('posSheet').innerHTML='';
+    renderPOS();
+    toast(`<b>${R(sale.total)}</b> ${payment.toLowerCase()} sale recorded ✓`);
+  }catch(err){ toast('Sale failed: '+esc(err.message), true); }
+}
+
+async function posUndo(){
+  if(!pos) return;
+  const evId = pos.evId;
+  const e = state.events.find(x=>x.id===evId);
+  if(!e || !(e.sales||[]).length){ toast('No sales to undo', true); return; }
+  const last = e.sales[e.sales.length-1];
+  if(!confirm('Undo the last sale? ('+R(last.total)+' '+last.payment+', '+last.items.reduce((a,i)=>a+i.qty,0)+' item(s))')) return;
+  try{
+    await cloudTx(async tx=>{
+      const eref = fb.doc(db,'events',evId);
+      const es = await tx.get(eref);
+      if(!es.exists()) throw new Error('event missing');
+      const le = es.data();
+      if(!(le.sales||[]).length) throw new Error('no sales to undo');
+      le.sales.pop();
+      tx.set(eref, clean(le));
+    });
+    if(!simMode){
+      const e2 = state.events.find(x=>x.id===evId);
+      if(e2 && (e2.sales||[]).length && e2.sales[e2.sales.length-1].id===last.id) e2.sales.pop();
+    }
+    renderPOS();
+    toast('Last sale undone');
+  }catch(err){ toast('Couldn\u2019t undo: '+esc(err.message), true); }
 }
 
 /* ================= iKHOKHA SALES IMPORT ================= */
@@ -2080,6 +2419,8 @@ function exitSim(){
   closeModal();
   const pr = document.getElementById('printRoot');
   if(pr){ pr.className=''; pr.innerHTML=''; document.body.classList.remove('printing'); }
+  const po = document.getElementById('posRoot');
+  if(po){ po.className=''; po.innerHTML=''; pos=null; }
   startListeners(); // re-sync with the real database
   refreshUI();
   toast('<b>Back to reality</b> — live inventory restored');
