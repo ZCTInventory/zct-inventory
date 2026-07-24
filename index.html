@@ -301,6 +301,29 @@ main{max-width:1240px;margin:0 auto;padding:26px 24px 80px}
 .pay-btns small{font-size:10.5px;font-weight:500;opacity:.75}
 .pos-note{font-size:12px;color:var(--muted);margin-top:10px;text-align:center}
 
+/* ---------- cashbox ---------- */
+.cash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:10px 0}
+.denom-btn{position:relative;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:14px 6px 10px;text-align:center;cursor:pointer;transition:.12s}
+.denom-btn:active{transform:scale(.96)}
+.denom-btn:hover{border-color:var(--lime-dark)}
+.denom-btn .dv{font-family:var(--font-display);font-weight:600;font-size:17px}
+.denom-btn .dt{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.denom-btn .cnt{position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;border-radius:999px;background:var(--ink);color:var(--lime);font-weight:700;font-size:11.5px;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.denom-btn .minus{position:absolute;top:-7px;left:-7px;width:22px;height:22px;border-radius:999px;background:var(--red-soft);color:var(--red);border:none;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+.cb-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.cb-row .dl{font-family:var(--font-display);font-weight:600;font-size:15px;min-width:52px}
+.cb-row .stepper{margin-top:0;width:118px}
+.cb-row .val{margin-left:auto;font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.cb-row.low .dl{color:var(--amber)}
+.cb-row.low::after{content:"LOW";font-size:9px;font-weight:800;letter-spacing:.06em;color:var(--amber);background:var(--amber-soft);border-radius:999px;padding:2px 7px}
+.tender-sum{display:flex;justify-content:space-between;align-items:center;background:var(--paper);border-radius:10px;padding:10px 14px;margin:8px 0;font-weight:600;font-size:14px}
+.tender-sum b{font-family:var(--font-display);font-size:19px}
+.tender-sum.due b{color:var(--red)}
+.tender-sum.ok{background:var(--lime-soft)}
+.change-line{font-size:12.5px;color:var(--ink-2);margin:4px 0 8px}
+.cash-warn{background:var(--amber-soft);color:#7a5a17;border-radius:10px;padding:9px 12px;font-size:12.5px;margin:8px 0}
+.cash-low-chip{border:none;background:var(--amber-soft);color:var(--amber);font-size:11px;font-weight:700;border-radius:999px;padding:5px 10px;letter-spacing:.03em}
+
 /* ---------- sales import ---------- */
 .imp-drop{border:2px dashed var(--line);border-radius:14px;padding:34px 20px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s}
 .imp-drop:hover{border-color:var(--lime-dark);background:var(--lime-soft)}
@@ -393,11 +416,47 @@ body.sim header{border-bottom:3px solid #5b3d8f}
   .pl-page{max-width:none;padding:0}
   @page{margin:14mm}
 }
+button,.btn,.tab,.chip,.pos-tile,.var-row{touch-action:manipulation}
+@media(max-width:700px){
+  /* 16px inputs stop iOS Safari zooming on focus */
+  input,select,textarea{font-size:16px}
+  .imp-table select{font-size:14px}
+}
 @media(max-width:640px){
-  .hd-in{padding:10px 14px;gap:12px}
-  .hd-logo{height:40px}
-  .hd-title{font-size:15px}
-  main{padding:18px 14px 70px}
+  .hd-in{padding:8px 10px;gap:8px}
+  .hd-logo{height:36px}
+  .hd-title{font-size:13.5px;line-height:1.1}
+  .hd-title small{display:none}
+  .tabs{padding:3px;gap:3px}
+  .tab{padding:7px 13px;font-size:12.5px}
+  .refresh-btn{width:34px;height:34px}
+  main{padding:16px 12px 70px}
+  .overlay{padding:14px 8px 20px}
+  .modal{border-radius:16px}
+  .m-head{padding:14px 16px}
+  .m-body{padding:16px 14px}
+  .m-foot{padding:12px 14px;gap:8px}
+  .m-foot .btn{padding:10px 13px;font-size:13px}
+  .stats{grid-template-columns:repeat(2,1fr);gap:10px}
+  .stat{padding:12px 14px}
+  .stat b{font-size:22px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:11px}
+  .pk-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px}
+  .pos-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+  .co-table{min-width:520px}
+  .imp-table{min-width:560px}
+  .summary-band{grid-template-columns:repeat(2,1fr)}
+}
+@media(min-width:900px){
+  /* iPad landscape / desktop: keep POS comfortable, not stretched */
+  .pos-grid{max-width:1100px;margin:0 auto;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+  .pos-scroll{padding:22px 24px calc(100px + env(safe-area-inset-bottom))}
+  .pos-bar{justify-content:flex-end}
+  .pos-bar .sum{flex:0 1 auto;margin-right:auto}
+}
+@media(min-width:700px){
+  .pos-sheet{align-items:center;padding:20px}
+  .pos-card{border-radius:20px;max-height:80%}
 }
 </style>
 </head>
@@ -727,14 +786,14 @@ function renderLocRows(locs){
   document.getElementById('locRows').innerHTML = locs.map((l,i)=>`
     <div class="loc-row" data-i="${i}">
       <input type="text" class="lname" value="${esc(l.name)}" placeholder="Location name">
-      <input type="number" class="lqty" min="0" value="${l.qty}">
+      <input type="number" inputmode="numeric" class="lqty" min="0" value="${l.qty}">
       <button class="icon-btn" title="Remove location" onclick="this.parentElement.remove()">✕</button>
     </div>`).join('');
 }
 function addLocRow(){
   const d=document.createElement('div'); d.className='loc-row';
   d.innerHTML = `<input type="text" class="lname" placeholder="Location name">
-    <input type="number" class="lqty" min="0" value="0">
+    <input type="number" inputmode="numeric" class="lqty" min="0" value="0">
     <button class="icon-btn" onclick="this.parentElement.remove()">✕</button>`;
   document.getElementById('locRows').appendChild(d);
 }
@@ -858,7 +917,7 @@ function openNewProduct(){
             <div id="npLocRows">
               <div class="loc-row">
                 <input type="text" class="lname" placeholder="Location name" value="HQ Display Shelf">
-                <input type="number" class="lqty" min="0" value="0">
+                <input type="number" inputmode="numeric" class="lqty" min="0" value="0">
                 <button class="icon-btn" onclick="this.parentElement.remove()">✕</button>
               </div>
             </div>
@@ -884,7 +943,7 @@ function npPhoto(file){
 function npAddLoc(){
   const d=document.createElement('div'); d.className='loc-row';
   d.innerHTML = `<input type="text" class="lname" placeholder="Location name">
-    <input type="number" class="lqty" min="0" value="0">
+    <input type="number" inputmode="numeric" class="lqty" min="0" value="0">
     <button class="icon-btn" onclick="this.parentElement.remove()">✕</button>`;
   document.getElementById('npLocRows').appendChild(d);
 }
@@ -1014,7 +1073,7 @@ function renderEvents(){
           <div><span>Units sold</span><b>${e.unitsSold}</b></div>
           <div><span>Revenue</span><b>${R(e.revenue)}</b></div>
           <div><span>Profit</span><b>${e.profitKnown? R(e.profit) : '—'}</b></div>
-        </div>` : ''}
+        </div>` : (e.checkouts.length ? `<button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="event.stopPropagation();openPOS('${e.id}')">💰 Sell</button>` : '')}
     </div>`;
   }).join('') + `</div>`;
 }
@@ -1069,7 +1128,7 @@ function openEvent(id){
       <td><div class="co-item"><img class="co-thumb" src="${imgSrc(p)}"><div>${esc(displayName(p))}<small>${esc(p.sku||'')}</small></div></div></td>
       ${e.status==='closed'
         ? `<td class="num">${c.qty}</td><td class="num">${R(p.price)}</td><td class="num">${res?res.returned:'—'}</td><td class="num sold-chip">${res?res.sold:'—'}</td>`
-        : `<td class="num"><input type="number" class="qty-in" id="co_${c.productId}" value="${c.qty}" min="0" title="Edit, then press Update"></td>
+        : `<td class="num"><input type="number" inputmode="numeric" class="qty-in" id="co_${c.productId}" value="${c.qty}" min="0" title="Edit, then press Update"></td>
            <td class="num">${R(p.price)}</td>
            <td class="num"><button class="btn btn-ghost btn-sm" onclick="adjustCheckout('${e.id}','${c.productId}')">Update</button></td>`}
     </tr>`;
@@ -1100,11 +1159,11 @@ function openEvent(id){
             <span style="display:flex;gap:8px;flex-wrap:wrap">${e.checkouts.length?`<button class="btn btn-ghost" onclick="openPullList('${e.id}')">📋 Pull list</button><button class="btn btn-ghost" onclick="openSalesImport('event','${e.id}')">📄 Sales report</button><button class="btn btn-primary" onclick="openPOS('${e.id}')">💰 Sell</button>`:''}<button class="btn btn-lime" onclick="openPicker('${e.id}')">🛒 Add items</button></span>
           </div>`:''}
         ${e.checkouts.length ? `
-        <table class="co-table">
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="co-table">
           <thead><tr><th>Item</th><th class="num">Checked out</th><th class="num">Price</th>
             ${e.status==='closed'?'<th class="num">Returned</th><th class="num">Sold</th>':'<th class="num"></th>'}</tr></thead>
           <tbody>${rows}</tbody>
-        </table>${e.status==='active'?'<p style="margin-top:9px;font-size:12px;color:var(--muted)">Edit a quantity and press <b>Update</b> — lowering it returns stock to the main inventory, raising it checks out more, and 0 removes the item from the event.</p>':''}` : `<div class="empty" style="padding:30px"><h3>Nothing checked out yet</h3>Tap “Add items” to browse the merch and pick what’s going to this event.</div>`}
+        </table></div>${e.status==='active'?'<p style="margin-top:9px;font-size:12px;color:var(--muted)">Edit a quantity and press <b>Update</b> — lowering it returns stock to the main inventory, raising it checks out more, and 0 removes the item from the event.</p>':''}` : `<div class="empty" style="padding:30px"><h3>Nothing checked out yet</h3>Tap “Add items” to browse the merch and pick what’s going to this event.</div>`}
       </div>
       <div class="m-foot">
         ${e.status==='active' ? `<button class="btn btn-danger" style="margin-right:auto" onclick="deleteEvent('${e.id}')">Delete event</button>
@@ -1203,7 +1262,7 @@ function renderPicker(){
         <div class="pk-meta"><span>${dis?'Out of stock':avail+' avail'}${out?` · ${out} out`:''}</span><b>${R(p.price)}</b></div>
         ${dis?'':`<div class="stepper" onclick="event.stopPropagation()">
           <button onclick="pkSet('${p.id}',${sel-1})" ${sel<=0?'disabled':''}>−</button>
-          <input type="number" min="0" max="${avail}" value="${sel}" onchange="pkSet('${p.id}',parseInt(this.value)||0)">
+          <input type="number" inputmode="numeric" min="0" max="${avail}" value="${sel}" onchange="pkSet('${p.id}',parseInt(this.value)||0)">
           <button onclick="pkSet('${p.id}',${sel+1})" ${sel>=avail?'disabled':''}>+</button>
         </div>`}
       </div>
@@ -1468,7 +1527,7 @@ function openConclude(evId){
       <div class="m-head"><h3>Conclude — ${esc(e.name)}</h3><button class="m-close" onclick="openEvent('${evId}')">✕</button></div>
       <div class="m-body">
         <div class="note">Count what came back from the event. For each item, enter how many are <b>left unsold</b> — sold quantities, revenue and profit are worked out automatically, and leftovers go back to the main inventory.</div>
-        <table class="co-table">
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="co-table">
           <thead><tr><th>Item</th><th class="num">Checked out</th><th class="num">Left unsold</th><th class="num">Sold</th><th class="num">Revenue</th></tr></thead>
           <tbody>
           ${e.checkouts.map(c=>{
@@ -1482,7 +1541,7 @@ function openConclude(evId){
             </tr>`;
           }).join('')}
           </tbody>
-        </table>
+        </table></div>
         <div class="summary-band">
           <div class="stat"><span>Units sold</span><b id="ccUnits">0</b></div>
           <div class="stat accent"><span>Revenue</span><b id="ccRev">R0</b></div>
@@ -1830,6 +1889,7 @@ function openPOS(evId){
     <div class="pos-head">
       <button class="back" onclick="closePOS()">‹ Back</button>
       <h3>${esc(e.name)}</h3>
+      <button class="back" title="Cash box" onclick="openCashbox()">💵</button>
       <button class="back" title="Undo the last sale" onclick="posUndo()">↩︎</button>
       <div class="pos-tot" id="posTot"></div>
     </div>
@@ -1868,7 +1928,8 @@ function renderPOS(){
   const e = state.events.find(x=>x.id===pos.evId); if(!e){ closePOS(); return; }
   const groups = posGroups(e);
   const t = posSalesTotals(e);
-  document.getElementById('posTot').innerHTML = `${t.units} sold · ${t.count} sale${t.count!==1?'s':''}<b>${R(t.revenue)}</b>`;
+  const lowList = (e.cashbox && e.cashbox.set) ? lowDenoms(cashCounts(e)) : [];
+  document.getElementById('posTot').innerHTML = `${t.units} sold · ${t.count} sale${t.count!==1?'s':''}${lowList.length?` <button class="cash-low-chip" onclick="openCashbox()">⚠︎ low: ${lowList.join(', ')}</button>`:''}<b>${R(t.revenue)}</b>`;
   const grid = document.getElementById('posGrid');
   grid.innerHTML = groups.map((g,i)=>{
     const prices = [...new Set(g.vars.map(v=>v.p.price||0))];
@@ -1966,7 +2027,7 @@ function posOpenCart(){
               <div class="nm">${esc(p.item)}<small>${t.color?titleCase(t.color.name):''}${t.size?' · '+t.size:''}${!t.color&&!t.size?esc(String(p.modifier||'').toUpperCase()):''} · ${R(p.price)} each</small></div>
               <div class="stepper">
                 <button onclick="posSetQty('${id}',${qty-1})">−</button>
-                <input type="number" value="${qty}" min="0" max="${max}" onchange="posSetQty('${id}',parseInt(this.value)||0)">
+                <input type="number" inputmode="numeric" value="${qty}" min="0" max="${max}" onchange="posSetQty('${id}',parseInt(this.value)||0)">
                 <button onclick="posSetQty('${id}',${qty+1})" ${qty>=max?'disabled':''}>+</button>
               </div>
               <div class="lt">${R(qty*(p.price||0))}</div>
@@ -1974,7 +2035,7 @@ function posOpenCart(){
           }).join('')}
           <div class="pay-btns">
             <button class="btn btn-primary" onclick="posComplete('Card')">💳 Card<small>${R(total)}</small></button>
-            <button class="btn btn-lime" onclick="posComplete('Cash')">💵 Cash<small>${R(total)}</small></button>
+            <button class="btn btn-lime" onclick="posCashStart()">💵 Cash<small>${R(total)}</small></button>
             <button class="btn btn-ghost" onclick="posComplete('Other')">Other<small>${R(total)}</small></button>
           </div>
           <div class="pos-note">Choosing a payment completes the sale. Card payments still go through the iKhokha machine as usual.</div>
@@ -1983,7 +2044,7 @@ function posOpenCart(){
     </div>`;
 }
 
-async function posComplete(payment){
+async function posComplete(payment, cash){
   if(!pos) return;
   const evId = pos.evId;
   const cart = {...pos.cart};
@@ -1994,6 +2055,7 @@ async function posComplete(payment){
     items: ids.map(id=>{ const p=byId(id); return {productId:id, qty:cart[id], price:(p&&p.price)||0}; })
   };
   sale.total = sale.items.reduce((a,i)=>a+i.qty*i.price,0);
+  if(payment==='Cash' && cash) sale.cash = cash;
   try{
     await cloudTx(async tx=>{
       const eref = fb.doc(db,'events',evId);
@@ -2009,16 +2071,39 @@ async function posComplete(payment){
       }
       le.sales = le.sales||[];
       le.sales.push(sale);
+      if(sale.cash && le.cashbox && le.cashbox.set){
+        let c = countsAdd(le.cashbox.counts||{}, sale.cash.tenderCounts||{}, 1);
+        // verify the change can actually come out of the drawer (incl. the notes just received)
+        for(const d of DENOMS){
+          const need = (sale.cash.changeCounts||{})[d.v]||0;
+          if(need > (c[d.v]||0)) throw new Error('drawer doesn\u2019t have enough '+d.l+' for change — recount the cash box');
+        }
+        c = countsAdd(c, sale.cash.changeCounts||{}, -1);
+        le.cashbox.counts = c;
+      }
       tx.set(eref, clean(le));
     });
     if(!simMode){
       const e = state.events.find(x=>x.id===evId);
-      if(e){ e.sales = e.sales||[]; if(!e.sales.some(s=>s.id===sale.id)) e.sales.push(sale); }
+      if(e && !((e.sales||[]).some(s=>s.id===sale.id))){
+        e.sales = e.sales||[]; e.sales.push(sale);
+        if(sale.cash && e.cashbox && e.cashbox.set){
+          e.cashbox.counts = countsAdd(countsAdd(e.cashbox.counts||{}, sale.cash.tenderCounts||{}, 1), sale.cash.changeCounts||{}, -1);
+        }
+      }
     }
+    pos.tender = null;
     pos.cart = {};
     document.getElementById('posSheet').innerHTML='';
     renderPOS();
-    toast(`<b>${R(sale.total)}</b> ${payment.toLowerCase()} sale recorded ✓`);
+    toast(`<b>${R(sale.total)}</b> ${payment.toLowerCase()} sale recorded ✓${sale.cash&&sale.cash.change?` — change ${R(sale.cash.change)}`:''}`);
+    if(sale.cash){
+      const eNow = state.events.find(x=>x.id===evId);
+      if(eNow && eNow.cashbox && eNow.cashbox.set){
+        const low = lowDenoms(cashCounts(eNow));
+        if(low.length) toast('⚠︎ Cash box running low on '+esc(low.join(', ')), true);
+      }
+    }
   }catch(err){ toast('Sale failed: '+esc(err.message), true); }
 }
 
@@ -2036,16 +2121,202 @@ async function posUndo(){
       if(!es.exists()) throw new Error('event missing');
       const le = es.data();
       if(!(le.sales||[]).length) throw new Error('no sales to undo');
-      le.sales.pop();
+      const undone = le.sales.pop();
+      if(undone && undone.cash && le.cashbox && le.cashbox.set){
+        // give the customer back their notes, take back the change we handed out
+        le.cashbox.counts = countsAdd(countsAdd(le.cashbox.counts||{}, undone.cash.tenderCounts||{}, -1), undone.cash.changeCounts||{}, 1);
+        DENOMS.forEach(d=>{ if((le.cashbox.counts[d.v]||0)<0) le.cashbox.counts[d.v]=0; });
+      }
       tx.set(eref, clean(le));
     });
     if(!simMode){
       const e2 = state.events.find(x=>x.id===evId);
-      if(e2 && (e2.sales||[]).length && e2.sales[e2.sales.length-1].id===last.id) e2.sales.pop();
+      if(e2 && (e2.sales||[]).length && e2.sales[e2.sales.length-1].id===last.id){
+        e2.sales.pop();
+        if(last.cash && e2.cashbox && e2.cashbox.set){
+          e2.cashbox.counts = countsAdd(countsAdd(e2.cashbox.counts||{}, last.cash.tenderCounts||{}, -1), last.cash.changeCounts||{}, 1);
+          DENOMS.forEach(d=>{ if((e2.cashbox.counts[d.v]||0)<0) e2.cashbox.counts[d.v]=0; });
+        }
+      }
     }
     renderPOS();
     toast('Last sale undone');
   }catch(err){ toast('Couldn\u2019t undo: '+esc(err.message), true); }
+}
+
+/* ================= CASHBOX ================= */
+const DENOMS = [
+  {v:20000, l:'R200', t:'note'}, {v:10000, l:'R100', t:'note'}, {v:5000, l:'R50', t:'note'},
+  {v:2000, l:'R20', t:'note'}, {v:1000, l:'R10', t:'note'},
+  {v:500, l:'R5', t:'coin'}, {v:200, l:'R2', t:'coin'}, {v:100, l:'R1', t:'coin'}, {v:50, l:'50c', t:'coin'}
+];
+const LOW_AT = {5000:3, 2000:4, 1000:4, 500:4, 200:4, 100:4}; // change-making denominations
+const cents = r => Math.round((r||0)*100);
+const fromCents = c => (c/100);
+const Rc = c => R(c/100);
+
+function cashCounts(e){ return (e.cashbox && e.cashbox.counts) || {}; }
+function cashBoxTotal(counts){ return DENOMS.reduce((a,d)=>a + (counts[d.v]||0)*d.v, 0); }
+function lowDenoms(counts){
+  return DENOMS.filter(d=> LOW_AT[d.v]!=null && (counts[d.v]||0) < LOW_AT[d.v]).map(d=>d.l);
+}
+function countsAdd(base, add, sign){
+  const out = {...base};
+  DENOMS.forEach(d=>{ const n=(add[d.v]||0)*(sign||1); if(n) out[d.v]=(out[d.v]||0)+n; });
+  return out;
+}
+function greedyChange(dueCents, avail){
+  const counts = {}; let rem = dueCents;
+  for(const d of DENOMS){
+    if(rem<=0) break;
+    const take = Math.min(Math.floor(rem/d.v), avail[d.v]||0);
+    if(take>0){ counts[d.v]=take; rem -= take*d.v; }
+  }
+  return {counts, remainder:rem};
+}
+
+/* ---- cashbox count/setup sheet ---- */
+function openCashbox(){
+  if(!pos) return;
+  const e = state.events.find(x=>x.id===pos.evId); if(!e) return;
+  const counts = cashCounts(e);
+  const hasBox = !!(e.cashbox && e.cashbox.set);
+  const low = lowDenoms(counts);
+  document.getElementById('posSheet').innerHTML = `
+    <div class="pos-sheet" onclick="if(event.target===this) this.parentElement.innerHTML=''">
+      <div class="pos-card">
+        <div class="hd"><h4>Cash box</h4><button class="m-close" onclick="document.getElementById('posSheet').innerHTML=''">✕</button></div>
+        <div class="bd">
+          <p style="font-size:12.5px;color:var(--muted);margin-bottom:6px">${hasBox?'Live drawer contents — updated automatically by cash sales. Edit to match a recount.':'Count the float into the drawer to start tracking cash and change.'}</p>
+          ${DENOMS.map(d=>{
+            const c = counts[d.v]||0;
+            const isLow = LOW_AT[d.v]!=null && c < LOW_AT[d.v];
+            return `<div class="cb-row ${hasBox&&isLow?'low':''}">
+              <span class="dl">${d.l}</span>
+              <div class="stepper">
+                <button onclick="cbStep(${d.v},-1)">−</button>
+                <input type="number" inputmode="numeric" id="cb_${d.v}" value="${c}" min="0" onchange="cbSync()">
+                <button onclick="cbStep(${d.v},1)">+</button>
+              </div>
+              <span class="val" id="cbv_${d.v}">${Rc(c*d.v)}</span>
+            </div>`;
+          }).join('')}
+          <div class="tender-sum" style="margin-top:12px"><span>Drawer total</span><b id="cbTotal">${Rc(cashBoxTotal(counts))}</b></div>
+          ${hasBox&&low.length?`<div class="cash-warn">⚠︎ Running low on: ${low.join(', ')}</div>`:''}
+          <div class="pay-btns" style="grid-template-columns:1fr">
+            <button class="btn btn-primary" onclick="saveCashbox()">Save drawer count</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+function cbStep(v, d){
+  const el = document.getElementById('cb_'+v);
+  el.value = Math.max(0, (parseInt(el.value)||0)+d);
+  cbSync();
+}
+function cbSync(){
+  let tot=0;
+  DENOMS.forEach(d=>{
+    const c = Math.max(0, parseInt((document.getElementById('cb_'+d.v)||{}).value)||0);
+    tot += c*d.v;
+    const v = document.getElementById('cbv_'+d.v); if(v) v.textContent = Rc(c*d.v);
+  });
+  const t = document.getElementById('cbTotal'); if(t) t.textContent = Rc(tot);
+}
+async function saveCashbox(){
+  if(!pos) return;
+  const evId = pos.evId;
+  const counts = {};
+  DENOMS.forEach(d=>{ const c=Math.max(0, parseInt((document.getElementById('cb_'+d.v)||{}).value)||0); if(c) counts[d.v]=c; });
+  try{
+    await cloudTx(async tx=>{
+      const eref = fb.doc(db,'events',evId);
+      const es = await tx.get(eref);
+      if(!es.exists()) throw new Error('event missing');
+      const le = es.data();
+      le.cashbox = {set:true, counts};
+      tx.set(eref, clean(le));
+    });
+    if(!simMode){
+      const e = state.events.find(x=>x.id===evId);
+      if(e) e.cashbox = {set:true, counts};
+    }
+    document.getElementById('posSheet').innerHTML='';
+    renderPOS();
+    toast('<b>Cash box saved</b> — '+Rc(cashBoxTotal(counts)));
+  }catch(err){ toast('Couldn\u2019t save: '+esc(err.message), true); }
+}
+
+/* ---- cash tender flow ---- */
+function posCashStart(){
+  if(!pos) return;
+  pos.tender = {counts:{}, changeCounts:null, manual:false};
+  renderTender();
+}
+function tenderTotals(){
+  const e = state.events.find(x=>x.id===pos.evId);
+  const total = Object.keys(pos.cart).reduce((a,id)=>{ const p=byId(id); return a + pos.cart[id]*cents((p&&p.price)||0); },0);
+  const tendered = DENOMS.reduce((a,d)=>a+(pos.tender.counts[d.v]||0)*d.v,0);
+  return {e, total, tendered, due: Math.max(0, tendered-total)};
+}
+function renderTender(){
+  if(!pos || !pos.tender) return;
+  const {e, total, tendered, due} = tenderTotals();
+  const drawer = cashCounts(e);
+  const availForChange = countsAdd(drawer, pos.tender.counts, 1); // customer's notes go into the drawer
+  let change = {counts:{}, remainder:0};
+  if(tendered>=total && due>0){
+    change = pos.tender.manual && pos.tender.changeCounts ? {counts:pos.tender.changeCounts, remainder:0} : greedyChange(due, availForChange);
+    if(!pos.tender.manual) pos.tender.changeCounts = change.counts;
+  } else pos.tender.changeCounts = null;
+  const changeSel = DENOMS.reduce((a,d)=>a+((pos.tender.changeCounts||{})[d.v]||0)*d.v,0);
+  const changeOk = tendered>=total && (due===0 || changeSel===due);
+  const hasBox = !!(e.cashbox && e.cashbox.set);
+
+  document.getElementById('posSheet').innerHTML = `
+    <div class="pos-sheet" onclick="if(event.target===this) posOpenCart()">
+      <div class="pos-card">
+        <div class="hd"><h4>Cash · ${Rc(total)}</h4><button class="m-close" onclick="posOpenCart()">✕</button></div>
+        <div class="bd">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">Tap what the customer handed over</div>
+          <div class="cash-grid">
+            ${DENOMS.map(d=>{
+              const c = pos.tender.counts[d.v]||0;
+              return `<button class="denom-btn" onclick="tenderAdd(${d.v},1)">
+                ${c?`<span class="cnt">${c}</span><span class="minus" onclick="event.stopPropagation();tenderAdd(${d.v},-1)">−</span>`:''}
+                <div class="dv">${d.l}</div><div class="dt">${d.t}</div>
+              </button>`;
+            }).join('')}
+          </div>
+          <div class="tender-sum ${tendered>=total?'ok':'due'}"><span>Tendered</span><b>${Rc(tendered)}</b></div>
+          ${tendered<total ? `<div class="tender-sum due"><span>Still owed</span><b>${Rc(total-tendered)}</b></div>` : due>0 ? `
+            <div class="tender-sum"><span>Change due</span><b>${Rc(due)}</b></div>
+            <div class="change-line"><b>Give back:</b> ${DENOMS.filter(d=>(pos.tender.changeCounts||{})[d.v]).map(d=>`${pos.tender.changeCounts[d.v]}× ${d.l}`).join(' + ')||'—'}
+              ${change.remainder>0?'':''}</div>
+            ${change.remainder>0?`<div class="cash-warn">⚠︎ The drawer can\u2019t make exact change — short ${Rc(change.remainder)}. Adjust the drawer or round the sale.</div>`:''}
+          ` : tendered===total ? `<div class="change-line" style="color:#5c7a12;font-weight:600">Exact amount — no change needed ✓</div>` : ''}
+          ${!hasBox?`<div class="cash-warn">Cash box hasn\u2019t been counted in yet — change suggestions may be off. <u style="cursor:pointer" onclick="openCashbox()">Set it up</u> or complete without counting.</div>`:''}
+          <div class="pay-btns" style="grid-template-columns:1fr 1fr">
+            <button class="btn btn-primary" ${changeOk?'':'disabled'} onclick="posComplete('Cash', collectCashDetail())">Complete sale</button>
+            <button class="btn btn-ghost" onclick="posComplete('Cash', null)">Complete without counting</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+function tenderAdd(v, d){
+  if(!pos || !pos.tender) return;
+  pos.tender.counts[v] = Math.max(0, (pos.tender.counts[v]||0)+d);
+  if(!pos.tender.counts[v]) delete pos.tender.counts[v];
+  pos.tender.manual = false; // re-suggest change on any tender edit
+  renderTender();
+}
+function collectCashDetail(){
+  if(!pos || !pos.tender) return null;
+  const {total, tendered, due} = tenderTotals();
+  return { tendered: fromCents(tendered), change: fromCents(due),
+    tenderCounts: {...pos.tender.counts}, changeCounts: {...(pos.tender.changeCounts||{})} };
 }
 
 /* ================= iKHOKHA SALES IMPORT ================= */
@@ -2296,7 +2567,7 @@ function renderSalesReview(){
         const [cls,lab] = l.chosen ? impConf(l.score) : ['none','No match'];
         return `<tr>
           <td class="imp-line">${esc(l.name)}${l.sku?`<small>${esc(l.sku)}</small>`:''}${l.amount?`<small>${R(l.amount)}</small>`:''}</td>
-          <td style="text-align:right"><input type="number" value="${l.qty}" onchange="salesImport.lines[${i}].qty=parseInt(this.value)||0"></td>
+          <td style="text-align:right"><input type="number" inputmode="numeric" value="${l.qty}" onchange="salesImport.lines[${i}].qty=parseInt(this.value)||0"></td>
           <td><select onchange="salesImport.lines[${i}].chosen=this.value; salesImport.lines[${i}].score=999; renderSalesReview()">${productOptions(l.chosen)}</select></td>
           <td><span class="conf ${cls}">${l.score===999?'Manual':lab}</span></td>
         </tr>`;
